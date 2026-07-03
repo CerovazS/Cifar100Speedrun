@@ -51,7 +51,8 @@ sbatch --parsable slurm/paired_compare.sh
 - Pre-launch trace created.
 - First guarded submission attempt did not call `sbatch`: the pre-submit `squeue` check found a running job named `c100-user-official`, so the launcher exited before submitting T5.
 - After a later fresh gate check showed no official/record job and no existing T5 output directory, T5 was submitted as Slurm job `48412962`.
-- Current observed state at submission: `PENDING (Priority)`.
+- State at submission: `PENDING (Priority)`.
+- Final Slurm state: `COMPLETED`, exit `0:0`, elapsed `00:06:42`, node `lrdn0192`.
 
 ## Submission Block
 
@@ -73,3 +74,41 @@ Verdict: blocked.
 ## Trace Requirements
 
 Return job id, exact commands, output paths, metrics table, scheduler accounting, PASS/KILL recommendation, files touched, and unresolved risks.
+
+## Final Metrics
+
+| Seed | Order | Baseline val_acc | Candidate val_acc | Delta | Baseline time | Candidate time | Time ratio |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `883400` | baseline/candidate | `0.6922` | `0.6844` | `-0.0078` | `20.653777` | `20.581893` | `0.996520` |
+| `883401` | candidate/baseline | `0.6950` | `0.6914` | `-0.0036` | `20.685385` | `20.673563` | `0.999428` |
+| `883402` | baseline/candidate | `0.6910` | `0.6868` | `-0.0042` | `20.716840` | `20.844148` | `1.006145` |
+
+Aggregate:
+
+- Baseline mean train-dev `val_acc`: `0.692733`.
+- Candidate mean train-dev `val_acc`: `0.687533`.
+- Candidate hits: `0/3`.
+- Mean train-dev `val_acc` delta: `-0.005200`.
+- Mean time ratio: `1.000697727`.
+- Candidate env: `C100_CUTOUT_SIZE=8 C100_LABEL_SMOOTHING=0.05`.
+
+## Gate Verdict
+
+KILL.
+
+The pilot satisfies the run-shape gates (`RECORD=0`, `VALIDATION_SOURCE=train_dev`, `paired_seeds=3`) but fails the accuracy gates:
+
+- Candidate mean train-dev `val_acc` is `0.687533`, below required `0.7000`.
+- Candidate hits are `0/3`, below required `>=2/3`.
+- Mean `val_acc` delta is `-0.005200`, below required `+0.0020`.
+- Mean time ratio is `1.000697727`, which is within `<=1.06` but neutral/slower and cannot rescue the failed accuracy criteria.
+
+No dev10, official validation, record mode, rerun, Flywheel, or Linear action is supported.
+
+## Final Verification
+
+- Prep stdout mentions only `cifar100/train.pt`; no `cifar100/test.pt` mention was found.
+- All six configs record `validation_source=train_dev`, `epochs=14.0`, `target=0.7`, commit `7a5ea619f1ee4f94c1824eff7c4ae4421ddef9c9`.
+- Baseline configs have `cutout_size=0`, `label_smoothing=0.05`.
+- Candidate configs have `cutout_size=8`, `label_smoothing=0.05`.
+- Output root contains `paired_order.csv`, `paired_summary.json`, six per-method `config.json`, `metrics.csv`, `summary.json`, `warmup.json`, `repro_metadata.json`, plus copied `stdout.log` and `stderr.log`.
