@@ -31,6 +31,7 @@ These partial metrics are not accepted evidence and must not be used for selecti
 
 - Canceled job `48412394`.
 - Confirmed this was a retry of the same prohibited `orchestration/g6-official-retrain/` launch surface documented in `2026-07-03-g6-official-cancel.md`.
+- Reversibly quarantined the remote scratch-checkout script by renaming `orchestration/g6-official-retrain/run_g6_official_preregistered.sh` to `run_g6_official_preregistered.sh.BLOCKED_BY_MAIN_20260703`.
 - Future official-validation jobs remain blocked until `program.md` explicitly names a finalist and G6 is unblocked after train-dev evidence plus critic audit.
 
 ## Accounting

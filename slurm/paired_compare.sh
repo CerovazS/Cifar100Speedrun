@@ -63,6 +63,14 @@ if [[ "$VALIDATION_SOURCE" == "official" && "$RECORD" != "1" ]]; then
   echo "Default paired pilots use VALIDATION_SOURCE=train_dev; official is only for pre-registered record evidence." >&2
   exit 4
 fi
+if [[ "$RECORD" != "1" ]] && command -v squeue >/dev/null 2>&1; then
+  active_official_jobs=$(squeue -h -u "$USER" -o "%j" | grep -Ei 'official|record|g6' || true)
+  if [[ -n "$active_official_jobs" ]]; then
+    echo "Refusing train-dev paired pilot while official/record/G6 job is active:" >&2
+    echo "$active_official_jobs" >&2
+    exit 7
+  fi
+fi
 if [[ -e "$OUT_ROOT" ]]; then
   echo "Refusing to reuse output directory: $OUT_ROOT" >&2
   exit 3
@@ -70,6 +78,31 @@ fi
 mkdir -p "$OUT_ROOT"
 ORDER_FILE="$OUT_ROOT/paired_order.csv"
 printf "pair_index,seed,first,second\n" > "$ORDER_FILE"
+
+clear_training_env() {
+  unset BATCH MUON_LR BIAS_LR
+  unset C100_BATCH C100_MUON_LR C100_BIAS_LR
+  unset C100_WIDTHS C100_BLOCKS
+  unset C100_LABEL_SMOOTHING C100_CUTOUT_SIZE
+  unset C100_COMPILE C100_COMPILE_MODE C100_SLEEP_CYCLES
+}
+
+validate_candidate_env() {
+  local token key
+  for token in ${CANDIDATE_ENV:-}; do
+    key=${token%%=*}
+    case "$key" in
+      C100_EPOCHS|C100_BATCH|C100_WIDTHS|C100_BLOCKS|C100_MUON_LR|C100_BIAS_LR|C100_LABEL_SMOOTHING|C100_CUTOUT_SIZE)
+        ;;
+      *)
+        echo "Refusing untracked CANDIDATE_ENV key: $key" >&2
+        exit 8
+        ;;
+    esac
+  done
+}
+
+validate_candidate_env
 
 run_method() {
   local label="$1"
@@ -101,11 +134,13 @@ run_candidate() {
   local order="$1"
   local seed="$2"
   local pair_index="$3"
-  if [[ -n "${CANDIDATE_ENV:-}" ]]; then
-    env ${CANDIDATE_ENV} bash -c "$(declare -f run_method); EPOCHS='$EPOCHS' TARGET='$TARGET' VALIDATION_SOURCE='$VALIDATION_SOURCE' OUT_ROOT='$OUT_ROOT'; run_method candidate '$order' '$seed' '$pair_index'"
-  else
+  (
+    clear_training_env
+    if [[ -n "${CANDIDATE_ENV:-}" ]]; then
+      export ${CANDIDATE_ENV}
+    fi
     run_method candidate "$order" "$seed" "$pair_index"
-  fi
+  )
 }
 
 for ((i = 0; i < RUNS; i++)); do
@@ -113,17 +148,17 @@ for ((i = 0; i < RUNS; i++)); do
   pair_index=$((i + 1))
   if (( i % 2 == 0 )); then
     printf "%d,%d,baseline,candidate\n" "$pair_index" "$seed" >> "$ORDER_FILE"
-    run_method baseline A "$seed" "$pair_index"
+    (clear_training_env; run_method baseline A "$seed" "$pair_index")
     run_candidate B "$seed" "$pair_index"
   else
     printf "%d,%d,candidate,baseline\n" "$pair_index" "$seed" >> "$ORDER_FILE"
     run_candidate A "$seed" "$pair_index"
-    run_method baseline B "$seed" "$pair_index"
+    (clear_training_env; run_method baseline B "$seed" "$pair_index")
   fi
 done
 
 python - <<'PY' "$OUT_ROOT" "${CANDIDATE_ENV:-}" "$VALIDATION_SOURCE" "$RECORD"
-import csv, json, statistics, sys
+import csv, json, shlex, statistics, sys
 from pathlib import Path
 
 root = Path(sys.argv[1])
@@ -156,6 +191,16 @@ def order_by_seed():
 
 baseline_config = first_config("baseline")
 candidate_config = first_config("candidate")
+env_to_field = {
+    "C100_EPOCHS": "epochs",
+    "C100_BATCH": "batch_size",
+    "C100_WIDTHS": "widths",
+    "C100_BLOCKS": "blocks",
+    "C100_MUON_LR": "muon_lr",
+    "C100_BIAS_LR": "bias_lr",
+    "C100_LABEL_SMOOTHING": "label_smoothing",
+    "C100_CUTOUT_SIZE": "cutout_size",
+}
 compare_fields = [
     "epochs",
     "batch_size",
@@ -173,8 +218,27 @@ compare_fields = [
     "cutout_size",
 ]
 if candidate_env and baseline_config and candidate_config:
-    if all(baseline_config.get(field) == candidate_config.get(field) for field in compare_fields):
+    declared_fields = set()
+    unknown_keys = []
+    for token in shlex.split(candidate_env):
+        key = token.split("=", 1)[0]
+        field = env_to_field.get(key)
+        if field is None:
+            unknown_keys.append(key)
+        else:
+            declared_fields.add(field)
+    if unknown_keys:
+        raise SystemExit(f"CANDIDATE_ENV contains untracked keys: {unknown_keys}")
+    diff_fields = {
+        field
+        for field in compare_fields
+        if baseline_config.get(field) != candidate_config.get(field)
+    }
+    if not diff_fields:
         raise SystemExit("CANDIDATE_ENV was set, but candidate config matches baseline on all tracked training fields.")
+    unexpected = sorted(diff_fields - declared_fields)
+    if unexpected:
+        raise SystemExit(f"Candidate differs from baseline on undeclared fields: {unexpected}")
 
 baseline = by_seed("baseline")
 candidate = by_seed("candidate")

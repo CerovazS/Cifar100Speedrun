@@ -6,7 +6,7 @@ Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Spee
 
 ## Current Phase
 
-G5b train-dev-only second batch. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, and the first G5 train-dev search batch are complete. Official record attempts remain blocked until finalists are pre-registered, audited, and run with `RECORD=1` over exactly 30 paired official seeds.
+Post-G5b control hardening and redesign pause. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, and G5b train-dev search are complete. Official record attempts remain blocked until finalists are pre-registered, audited, and run with `RECORD=1` over exactly 30 paired official seeds.
 
 ## Subagent Delegation Plan
 
@@ -18,6 +18,7 @@ G5b train-dev-only second batch. G1 controls, G2 interactive smoke, G3 official 
 - `research-orchestrator` G5b-T4 Shallow recovery: complete; KILL after paired train-dev dev3.
 - `scientific-implementer` G5b-T5 Cheap regularization knobs/run: complete; KILL after cutout8 paired train-dev dev3.
 - `experiment-architect` G5b-T6 Batch/schedule design/run: complete; KILL after paired train-dev dev3 batch-1536 pilot.
+- Main orchestrator: harden paired wrapper and quarantine blocked G6 launch surface before any new GPU job.
 - `paper-explorer` Reader: active AirBench / fast-CIFAR source sweep.
 - `paper-explorer` PaperScout: active Muon / optimizer source sweep.
 - `paper-explorer` Scholar: active augmentation / regularization source sweep.
@@ -34,12 +35,13 @@ G5b train-dev-only second batch. G1 controls, G2 interactive smoke, G3 official 
 - [x] Independent G5 batch audit completed: see `orchestration/g5-batch-audit/summary.md`; verdict blocks dev10, paired train-dev, official validation, and record mode from current evidence.
 - [x] Flywheel logging delegated or ruled out for the first G5 batch: ruled out for now because all first-batch pilots are negative screening evidence and no record/finalist claim exists.
 - [x] G5b objective completed: T4 shallow recovery, T5 cutout8, and T6 batch-1536 all killed on train-dev evidence. No candidate is promotable.
+- [ ] Post-G5b control hardening completed: paired wrapper patch and remote G6 quarantine pending verification/commit.
 
 ## Immediate Backlog
 
-1. Run a critic over completed G5b results and control incidents before launching any new GPU work.
-2. Design the next batch around a more substantive mechanism; current simple compression, scalar LR, shallow architecture, batch-size, and cutout8 paths are killed.
-3. Prevent further use of remote untracked `orchestration/g6-official-retrain/` until G6 is explicitly unblocked.
+1. Verify and commit paired-wrapper hardening: sanitized baseline env, declared candidate diff guard, and official/record/G6 active-job refusal.
+2. Verify remote G6 launcher quarantine and keep official validation blocked.
+3. Design the next batch around a more substantive mechanism; current simple compression, scalar LR, shallow architecture, batch-size, and cutout8 paths are killed.
 4. If a future train-dev candidate clears a predeclared dev3 gate, run dev10 only after a new critic pass, then paired train-dev before any official finalist nomination.
 5. Keep official validation reserved for pre-registered finalists only.
 
@@ -51,6 +53,7 @@ G5b train-dev-only second batch. G1 controls, G2 interactive smoke, G3 official 
 - Incident `48410752`/`48410889`: an external old-path official-candidate script under `$WORK` attempted 30-run official candidate comparisons from a PAERLE/YENDRI checkout. Job `48410889` was canceled after 1m52s allocation and is not scientific evidence. See `orchestration/control-incidents/2026-07-03-official-candidate-cancel.md`.
 - Incident `48412222`: an unexpected G6 official-validation job was found pending from a remote untracked `orchestration/g6-official-retrain/` script and canceled before allocation. See `orchestration/control-incidents/2026-07-03-g6-official-cancel.md`.
 - Incident `48412394`: the same prohibited G6 official-validation script was retried, ran for `00:04:22`, touched official validation for seed `880000`, and was canceled. Partial official metrics are not accepted evidence. See `orchestration/control-incidents/2026-07-03-g6-official-retry-cancel.md`.
+- Remote quarantine: `orchestration/g6-official-retrain/run_g6_official_preregistered.sh` was reversibly renamed to `run_g6_official_preregistered.sh.BLOCKED_BY_MAIN_20260703` on the scratch checkout so it cannot be resubmitted by the same path.
 
 ## No-Run Gates
 
