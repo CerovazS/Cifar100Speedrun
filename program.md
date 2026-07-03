@@ -6,7 +6,7 @@ Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Spee
 
 ## Current Phase
 
-G5 train-dev trajectory audit and next-trajectory planning. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, and the first G5 train-dev search batch are complete. Official record attempts remain blocked until finalists are pre-registered, audited, and run with `RECORD=1` over exactly 30 paired official seeds.
+G5b train-dev-only second batch. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, and the first G5 train-dev search batch are complete. Official record attempts remain blocked until finalists are pre-registered, audited, and run with `RECORD=1` over exactly 30 paired official seeds.
 
 ## Subagent Delegation Plan
 
@@ -15,6 +15,9 @@ G5 train-dev trajectory audit and next-trajectory planning. G1 controls, G2 inte
 - `research-orchestrator` T2 Muon mechanics: complete; kill recommendation after dev3 LR pilots.
 - `research-orchestrator` T3 Architecture Pareto: complete; kill narrow/basewidth, keep `shallow122` only as a possible combined follow-up candidate.
 - `scientific-critic` G5 Batch Reviewer: required before any next G5 expansion or finalist promotion.
+- `research-orchestrator` G5b-T4 Shallow recovery: paired train-dev dev3 at 16 epochs using committed architecture knobs.
+- `scientific-implementer` G5b-T5 Cheap regularization knobs: add default-preserving env knobs for label smoothing and cutout before any run.
+- `experiment-architect` G5b-T6 Batch/schedule design: propose a non-redundant dev3 pilot with matched controls and a numeric gate.
 - `paper-explorer` Reader: active AirBench / fast-CIFAR source sweep.
 - `paper-explorer` PaperScout: active Muon / optimizer source sweep.
 - `paper-explorer` Scholar: active augmentation / regularization source sweep.
@@ -29,13 +32,14 @@ G5 train-dev trajectory audit and next-trajectory planning. G1 controls, G2 inte
 - [x] Critical audit completed for G1-G4 and per-track G5 pilots: see `orchestration/g5-t1-schedule/summary.md`, `orchestration/g5-t2-muon/summary.md`, and `orchestration/g5-t3-arch/summary.md`.
 - [x] Objective completed for first G5 batch: T1/T2 killed; T3 only leaves `shallow122` as a possible combined follow-up, not a finalist.
 - [x] Independent G5 batch audit completed: see `orchestration/g5-batch-audit/summary.md`; verdict blocks dev10, paired train-dev, official validation, and record mode from current evidence.
-- [ ] Flywheel logging delegated or ruled out for the series: local traces exist; no graph mutation until a curated series summary, reproducibility bundle, and critic verdict exist.
+- [x] Flywheel logging delegated or ruled out for the first G5 batch: ruled out for now because all first-batch pilots are negative screening evidence and no record/finalist claim exists.
+- [ ] G5b objective completed: pending T4/T5/T6 subagent outputs and critic audit.
 
 ## Immediate Backlog
 
-1. Commit train-only prep for future train-dev search wrappers.
-2. Sync commit `2d4f9d3` plus train-only prep fix to the scratch checkout so future runs do not rely on dirty patches.
-3. Design the next train-dev batch around more substantive candidate mechanisms; do not repeat simple epoch/LR-only sweeps.
+1. Launch G5b-T4 paired train-dev dev3 only after trace creation: `shallow122` at 16 epochs vs default, `RECORD=0`.
+2. Integrate and audit G5b-T5 default-preserving regularization knobs before any regularization run.
+3. Accept or reject G5b-T6 batch/schedule pilot design; do not launch if it duplicates failed scalar LR/epoch sweeps.
 4. If a future train-dev candidate clears a predeclared dev3 gate, run dev10 only after a new critic pass, then paired train-dev before any official finalist nomination.
 5. Keep official validation reserved for pre-registered finalists only.
 
