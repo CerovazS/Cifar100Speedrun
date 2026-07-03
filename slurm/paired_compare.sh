@@ -82,22 +82,25 @@ clear_training_env() {
   unset C100_COMPILE C100_COMPILE_MODE C100_SLEEP_CYCLES
 }
 
-validate_candidate_env() {
+validate_env_tokens() {
+  local env_name="$1"
+  local env_value="$2"
   local token key
-  for token in ${CANDIDATE_ENV:-}; do
+  for token in ${env_value}; do
     key=${token%%=*}
     case "$key" in
       C100_EPOCHS|C100_BATCH|C100_WIDTHS|C100_BLOCKS|C100_MUON_LR|C100_BIAS_LR|C100_NS_STEPS|C100_MUON_MOMENTUM|C100_MUON_WEIGHT_DECAY|C100_SGD_MOMENTUM|C100_LABEL_SMOOTHING|C100_CUTOUT_SIZE|C100_LR_SCHEDULE|C100_ONECYCLE_PCT_UP|C100_ONECYCLE_DIV_FACTOR)
         ;;
       *)
-        echo "Refusing untracked CANDIDATE_ENV key: $key" >&2
+        echo "Refusing untracked ${env_name} key: $key" >&2
         exit 8
         ;;
     esac
   done
 }
 
-validate_candidate_env
+validate_env_tokens BASELINE_ENV "${BASELINE_ENV:-}"
+validate_env_tokens CANDIDATE_ENV "${CANDIDATE_ENV:-}"
 
 run_method() {
   local label="$1"
@@ -142,28 +145,42 @@ run_candidate() {
   )
 }
 
+run_baseline() {
+  local order="$1"
+  local seed="$2"
+  local pair_index="$3"
+  (
+    clear_training_env
+    if [[ -n "${BASELINE_ENV:-}" ]]; then
+      export ${BASELINE_ENV}
+    fi
+    run_method baseline "$order" "$seed" "$pair_index"
+  )
+}
+
 for ((i = 0; i < RUNS; i++)); do
   seed=$((BASE_SEED + i))
   pair_index=$((i + 1))
   if (( i % 2 == 0 )); then
     printf "%d,%d,baseline,candidate\n" "$pair_index" "$seed" >> "$ORDER_FILE"
-    (clear_training_env; run_method baseline A "$seed" "$pair_index")
+    run_baseline A "$seed" "$pair_index"
     run_candidate B "$seed" "$pair_index"
   else
     printf "%d,%d,candidate,baseline\n" "$pair_index" "$seed" >> "$ORDER_FILE"
     run_candidate A "$seed" "$pair_index"
-    (clear_training_env; run_method baseline B "$seed" "$pair_index")
+    run_baseline B "$seed" "$pair_index"
   fi
 done
 
-python - <<'PY' "$OUT_ROOT" "${CANDIDATE_ENV:-}" "$VALIDATION_SOURCE" "$RECORD"
+python - <<'PY' "$OUT_ROOT" "${CANDIDATE_ENV:-}" "${BASELINE_ENV:-}" "$VALIDATION_SOURCE" "$RECORD"
 import csv, json, shlex, statistics, sys
 from pathlib import Path
 
 root = Path(sys.argv[1])
 candidate_env = sys.argv[2].strip()
-validation_source = sys.argv[3]
-record = sys.argv[4] == "1"
+baseline_env = sys.argv[3].strip()
+validation_source = sys.argv[4]
+record = sys.argv[5] == "1"
 
 def rows(path):
     with path.open() as f:
@@ -278,6 +295,7 @@ summary = {
     "paired_seeds": len(pairs),
     "validation_source": validation_source,
     "record_mode": record,
+    "baseline_env": baseline_env,
     "candidate_env": candidate_env,
     "order_file": "paired_order.csv",
     "counterbalance": "per-seed alternating AB/BA; pilot-grade, with one trainer invocation per method per seed",

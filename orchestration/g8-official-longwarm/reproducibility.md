@@ -5,7 +5,7 @@
 - Repository URL: `https://github.com/MarioPaerle/Cifar100Speedrun`
 - Branch used on Leonardo: `codex/cifar100-speedrun-control`
 - Run code commit recorded in configs: `2c3edb798dc27d512109a7c49eb8ede82b84c023`
-- Local curation base before this run: `33767af`
+- Local curation commit for this logging handoff: `a122542981b04f192dbc975c516464858a643d19`
 
 ## Environment
 

@@ -1,0 +1,18 @@
+===SACCT 48457399===
+JobID                         JobName      State ExitCode    Elapsed                                                                        AllocTRES             NodeList 
+------------ ------------------------ ---------- -------- ---------- -------------------------------------------------------------------------------- -------------------- 
+48457399                  c100-paired  COMPLETED      0:0   00:06:31                                        billing=8,cpu=8,gres/gpu=1,mem=64G,node=1             lrdn2675 
+48457399.ba+                    batch  COMPLETED      0:0   00:06:31                                                  cpu=8,gres/gpu=1,mem=64G,node=1             lrdn2675 
+48457399.ex+                   extern  COMPLETED      0:0   00:06:31                                        billing=8,cpu=8,gres/gpu=1,mem=64G,node=1             lrdn2675 
+===SACCT 48457400===
+JobID                         JobName      State ExitCode    Elapsed                                                                        AllocTRES             NodeList 
+------------ ------------------------ ---------- -------- ---------- -------------------------------------------------------------------------------- -------------------- 
+48457400                  c100-paired  COMPLETED      0:0   00:06:19                                        billing=8,cpu=8,gres/gpu=1,mem=64G,node=1             lrdn2694 
+48457400.ba+                    batch  COMPLETED      0:0   00:06:19                                                  cpu=8,gres/gpu=1,mem=64G,node=1             lrdn2694 
+48457400.ex+                   extern  COMPLETED      0:0   00:06:19                                        billing=8,cpu=8,gres/gpu=1,mem=64G,node=1             lrdn2694 
+===SACCT 48458063===
+JobID                         JobName      State ExitCode    Elapsed                                                                        AllocTRES             NodeList 
+------------ ------------------------ ---------- -------- ---------- -------------------------------------------------------------------------------- -------------------- 
+48458063                  c100-paired  COMPLETED      0:0   00:04:36                                        billing=8,cpu=8,gres/gpu=1,mem=64G,node=1             lrdn3112 
+48458063.ba+                    batch  COMPLETED      0:0   00:04:36                                                  cpu=8,gres/gpu=1,mem=64G,node=1             lrdn3112 
+48458063.ex+                   extern  COMPLETED      0:0   00:04:36                                        billing=8,cpu=8,gres/gpu=1,mem=64G,node=1             lrdn3112 
