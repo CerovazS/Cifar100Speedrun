@@ -166,8 +166,8 @@ def zeropower_newton_schulz(g, steps=5):
 
 
 class Muon(torch.optim.Optimizer):
-    def __init__(self, params, lr=0.02, momentum=0.95, weight_decay=0.0):
-        defaults = dict(lr=lr, momentum=momentum, weight_decay=weight_decay)
+    def __init__(self, params, lr=0.02, momentum=0.95, weight_decay=0.0, ns_steps=5):
+        defaults = dict(lr=lr, momentum=momentum, weight_decay=weight_decay, ns_steps=ns_steps)
         super().__init__(params, defaults)
 
     @torch.no_grad()
@@ -176,6 +176,7 @@ class Muon(torch.optim.Optimizer):
             lr = group["lr"]
             momentum = group["momentum"]
             wd = group["weight_decay"]
+            ns_steps = group["ns_steps"]
             for p in group["params"]:
                 if p.grad is None:
                     continue
@@ -186,7 +187,7 @@ class Muon(torch.optim.Optimizer):
                     state["momentum_buffer"] = torch.zeros_like(p)
                 buf = state["momentum_buffer"]
                 buf.mul_(momentum).add_(p.grad)
-                update = zeropower_newton_schulz(buf)
+                update = zeropower_newton_schulz(buf, steps=ns_steps)
                 fan_out = update.shape[0]
                 fan_in = max(1, update.numel() // fan_out)
                 scale = math.sqrt(max(1.0, fan_out / fan_in))
@@ -285,6 +286,26 @@ def parse_lr_schedule_env():
     return lr_schedule, onecycle_pct_up, onecycle_div_factor
 
 
+def parse_bounded_int_env(name, default, min_value, max_value):
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    value = int(raw)
+    if not min_value <= value <= max_value:
+        raise ValueError(f"{name} must be in [{min_value}, {max_value}], got {value}")
+    return value
+
+
+def parse_bounded_float_env(name, default, min_value, max_value, include_max=True):
+    raw = os.getenv(name)
+    value = default if raw is None or raw.strip() == "" else float(raw)
+    upper_ok = value <= max_value if include_max else value < max_value
+    if not math.isfinite(value) or value < min_value or not upper_ok:
+        upper_bracket = "]" if include_max else ")"
+        raise ValueError(f"{name} must be finite and in [{min_value}, {max_value}{upper_bracket}, got {value!r}")
+    return value
+
+
 def lr_multiplier(lr_schedule, progress, onecycle_pct_up, onecycle_div_factor):
     if lr_schedule == "cosine":
         return 0.5 * (1.0 + math.cos(math.pi * progress))
@@ -357,14 +378,24 @@ def train_once(
     lr_schedule,
     onecycle_pct_up,
     onecycle_div_factor,
+    ns_steps,
+    muon_momentum,
+    muon_weight_decay,
+    sgd_momentum,
     evaluate_validation=True,
 ):
     seed_all(seed)
     reset_model(model)
     muon_params = [p for p in model.parameters() if p.ndim >= 2]
     other_params = [p for p in model.parameters() if p.ndim < 2]
-    muon = Muon(muon_params, lr=float(os.getenv("C100_MUON_LR", "0.035")), momentum=0.95, weight_decay=2e-4)
-    sgd = torch.optim.SGD(other_params, lr=float(os.getenv("C100_BIAS_LR", "0.02")), momentum=0.9, nesterov=True)
+    muon = Muon(
+        muon_params,
+        lr=float(os.getenv("C100_MUON_LR", "0.035")),
+        momentum=muon_momentum,
+        weight_decay=muon_weight_decay,
+        ns_steps=ns_steps,
+    )
+    sgd = torch.optim.SGD(other_params, lr=float(os.getenv("C100_BIAS_LR", "0.02")), momentum=sgd_momentum, nesterov=True)
     steps_per_epoch = len(train_images) // batch_size
     total_steps = max(1, int(math.ceil(epochs * steps_per_epoch)))
     step = 0
@@ -457,6 +488,10 @@ def main():
     if cutout_size < 0:
         raise ValueError(f"C100_CUTOUT_SIZE must be non-negative, got {cutout_size}")
     lr_schedule, onecycle_pct_up, onecycle_div_factor = parse_lr_schedule_env()
+    ns_steps = parse_bounded_int_env("C100_NS_STEPS", 5, 1, 8)
+    muon_momentum = parse_bounded_float_env("C100_MUON_MOMENTUM", 0.95, 0.0, 1.0, include_max=False)
+    muon_weight_decay = parse_bounded_float_env("C100_MUON_WEIGHT_DECAY", 2e-4, 0.0, 0.01)
+    sgd_momentum = parse_bounded_float_env("C100_SGD_MOMENTUM", 0.9, 0.0, 1.0, include_max=False)
     output_dir_raw = os.getenv("C100_OUTPUT_DIR", "")
     output_dir = Path(output_dir_raw) if output_dir_raw else None
     train_images, train_labels = load_split("train")
@@ -497,6 +532,10 @@ def main():
         "blocks": list(blocks),
         "muon_lr": float(os.getenv("C100_MUON_LR", "0.035")),
         "bias_lr": float(os.getenv("C100_BIAS_LR", "0.02")),
+        "ns_steps": ns_steps,
+        "muon_momentum": muon_momentum,
+        "muon_weight_decay": muon_weight_decay,
+        "sgd_momentum": sgd_momentum,
         "label_smoothing": label_smoothing,
         "cutout_size": cutout_size,
         "lr_schedule": lr_schedule,
@@ -511,7 +550,7 @@ def main():
     if output_dir is not None:
         write_json(output_dir / "config.json", config)
         write_repro_metadata(output_dir)
-    print(f"config model=simple_resnet_muon runs={runs} epochs={epochs} batch={batch_size} target={target} validation_source={validation_source} compile={int(compile_enabled)} compile_mode={compile_mode_label} label_smoothing={label_smoothing} cutout_size={cutout_size} lr_schedule={lr_schedule} onecycle_pct_up={onecycle_pct_up} onecycle_div_factor={onecycle_div_factor} no_tta=1")
+    print(f"config model=simple_resnet_muon runs={runs} epochs={epochs} batch={batch_size} target={target} validation_source={validation_source} compile={int(compile_enabled)} compile_mode={compile_mode_label} label_smoothing={label_smoothing} cutout_size={cutout_size} lr_schedule={lr_schedule} onecycle_pct_up={onecycle_pct_up} onecycle_div_factor={onecycle_div_factor} ns_steps={ns_steps} muon_momentum={muon_momentum} muon_weight_decay={muon_weight_decay} sgd_momentum={sgd_momentum} no_tta=1")
     print("---------------------------------------------------------------------------------")
     print("|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |")
     print("---------------------------------------------------------------------------------")
@@ -531,6 +570,10 @@ def main():
         lr_schedule,
         onecycle_pct_up,
         onecycle_div_factor,
+        ns_steps,
+        muon_momentum,
+        muon_weight_decay,
+        sgd_momentum,
         evaluate_validation=False,
     )
     if output_dir is not None:
@@ -556,6 +599,10 @@ def main():
             lr_schedule,
             onecycle_pct_up,
             onecycle_div_factor,
+            ns_steps,
+            muon_momentum,
+            muon_weight_decay,
+            sgd_momentum,
         )
         if output_dir is not None:
             append_metrics(output_dir / "metrics.csv", row)

@@ -75,6 +75,7 @@ clear_training_env() {
   unset BATCH MUON_LR BIAS_LR
   unset C100_EPOCHS
   unset C100_BATCH C100_MUON_LR C100_BIAS_LR
+  unset C100_NS_STEPS C100_MUON_MOMENTUM C100_MUON_WEIGHT_DECAY C100_SGD_MOMENTUM
   unset C100_WIDTHS C100_BLOCKS
   unset C100_LABEL_SMOOTHING C100_CUTOUT_SIZE
   unset C100_LR_SCHEDULE C100_ONECYCLE_PCT_UP C100_ONECYCLE_DIV_FACTOR
@@ -86,7 +87,7 @@ validate_candidate_env() {
   for token in ${CANDIDATE_ENV:-}; do
     key=${token%%=*}
     case "$key" in
-      C100_EPOCHS|C100_BATCH|C100_WIDTHS|C100_BLOCKS|C100_MUON_LR|C100_BIAS_LR|C100_LABEL_SMOOTHING|C100_CUTOUT_SIZE|C100_LR_SCHEDULE|C100_ONECYCLE_PCT_UP|C100_ONECYCLE_DIV_FACTOR)
+      C100_EPOCHS|C100_BATCH|C100_WIDTHS|C100_BLOCKS|C100_MUON_LR|C100_BIAS_LR|C100_NS_STEPS|C100_MUON_MOMENTUM|C100_MUON_WEIGHT_DECAY|C100_SGD_MOMENTUM|C100_LABEL_SMOOTHING|C100_CUTOUT_SIZE|C100_LR_SCHEDULE|C100_ONECYCLE_PCT_UP|C100_ONECYCLE_DIV_FACTOR)
         ;;
       *)
         echo "Refusing untracked CANDIDATE_ENV key: $key" >&2
@@ -117,13 +118,17 @@ run_method() {
   C100_BATCH=${C100_BATCH:-${BATCH:-1024}} \
   C100_MUON_LR=${C100_MUON_LR:-${MUON_LR:-0.035}} \
   C100_BIAS_LR=${C100_BIAS_LR:-${BIAS_LR:-0.02}} \
+  C100_NS_STEPS=${C100_NS_STEPS:-5} \
+  C100_MUON_MOMENTUM=${C100_MUON_MOMENTUM:-0.95} \
+  C100_MUON_WEIGHT_DECAY=${C100_MUON_WEIGHT_DECAY:-0.0002} \
+  C100_SGD_MOMENTUM=${C100_SGD_MOMENTUM:-0.9} \
   C100_SLEEP_CYCLES=${C100_SLEEP_CYCLES:-1000000000} \
   C100_OUTPUT_DIR="$out_dir" \
   python train_cifar100_resnet_muon.py
 }
 
 # Candidate overrides are passed through CANDIDATE_ENV, for example:
-# CANDIDATE_ENV='C100_MUON_LR=0.032 C100_BIAS_LR=0.018'
+# CANDIDATE_ENV='C100_MUON_LR=0.032 C100_BIAS_LR=0.018 C100_NS_STEPS=6'
 run_candidate() {
   local order="$1"
   local seed="$2"
@@ -192,6 +197,10 @@ env_to_field = {
     "C100_BLOCKS": "blocks",
     "C100_MUON_LR": "muon_lr",
     "C100_BIAS_LR": "bias_lr",
+    "C100_NS_STEPS": "ns_steps",
+    "C100_MUON_MOMENTUM": "muon_momentum",
+    "C100_MUON_WEIGHT_DECAY": "muon_weight_decay",
+    "C100_SGD_MOMENTUM": "sgd_momentum",
     "C100_LABEL_SMOOTHING": "label_smoothing",
     "C100_CUTOUT_SIZE": "cutout_size",
     "C100_LR_SCHEDULE": "lr_schedule",
@@ -211,6 +220,10 @@ compare_fields = [
     "blocks",
     "muon_lr",
     "bias_lr",
+    "ns_steps",
+    "muon_momentum",
+    "muon_weight_decay",
+    "sgd_momentum",
     "label_smoothing",
     "cutout_size",
     "lr_schedule",

@@ -1,0 +1,43 @@
+{
+  "candidate_env": "C100_EPOCHS=13 C100_LR_SCHEDULE=onecycle C100_ONECYCLE_PCT_UP=0.30 C100_ONECYCLE_DIV_FACTOR=10.0",
+  "counterbalance": "per-seed alternating AB/BA; pilot-grade, with one trainer invocation per method per seed",
+  "mean_time_delta": -1.4551647135416654,
+  "mean_time_ratio": 0.92887147519293,
+  "mean_val_acc_delta": 0.004933333333333345,
+  "order_file": "paired_order.csv",
+  "paired_seeds": 3,
+  "pairs": [
+    {
+      "baseline_time": 20.7027578125,
+      "baseline_val_acc": 0.6898,
+      "candidate_time": 19.040873046875,
+      "candidate_val_acc": 0.7048,
+      "order": "baseline/candidate",
+      "seed": 890000,
+      "time_ratio": 0.9197264064683411,
+      "val_acc_delta": 0.015000000000000013
+    },
+    {
+      "baseline_time": 20.28239453125,
+      "baseline_val_acc": 0.698,
+      "candidate_time": 18.873138671875,
+      "candidate_val_acc": 0.7046,
+      "order": "candidate/baseline",
+      "seed": 890001,
+      "time_ratio": 0.930518270059105,
+      "val_acc_delta": 0.00660000000000005
+    },
+    {
+      "baseline_time": 20.341794921875,
+      "baseline_val_acc": 0.7016,
+      "candidate_time": 19.04744140625,
+      "candidate_val_acc": 0.6948,
+      "order": "baseline/candidate",
+      "seed": 890002,
+      "time_ratio": 0.9363697490513442,
+      "val_acc_delta": -0.006800000000000028
+    }
+  ],
+  "record_mode": false,
+  "validation_source": "train_dev"
+}
