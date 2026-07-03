@@ -1,0 +1,10 @@
+JobID|JobName|State|ExitCode|Elapsed|AllocTRES
+48407258|c100-discovery|COMPLETED|0:0|00:05:15|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1
+48407258.batch|batch|COMPLETED|0:0|00:05:15|cpu=8,gres/gpu=1,mem=64G,node=1
+48407258.extern|extern|COMPLETED|0:0|00:05:15|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1
+48408602|c100-discovery|COMPLETED|0:0|00:04:01|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1
+48408602.batch|batch|COMPLETED|0:0|00:04:01|cpu=8,gres/gpu=1,mem=64G,node=1
+48408602.extern|extern|COMPLETED|0:0|00:04:01|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1
+48409231|c100-discovery|COMPLETED|0:0|00:01:32|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1
+48409231.batch|batch|COMPLETED|0:0|00:01:32|cpu=8,gres/gpu=1,mem=64G,node=1
+48409231.extern|extern|COMPLETED|0:0|00:01:32|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1

@@ -28,15 +28,15 @@ G5 train-dev trajectory audit and next-trajectory planning. G1 controls, G2 inte
 - [x] Planning artifacts complete for first gate: see `program/01-literature-plan.md`, `program/04-execution-dag.md`, and `program/05-plan-audit.md`.
 - [x] Critical audit completed for G1-G4 and per-track G5 pilots: see `orchestration/g5-t1-schedule/summary.md`, `orchestration/g5-t2-muon/summary.md`, and `orchestration/g5-t3-arch/summary.md`.
 - [x] Objective completed for first G5 batch: T1/T2 killed; T3 only leaves `shallow122` as a possible combined follow-up, not a finalist.
-- [ ] Independent G5 batch audit completed: required before launching the next trajectory batch.
+- [x] Independent G5 batch audit completed: see `orchestration/g5-batch-audit/summary.md`; verdict blocks dev10, paired train-dev, official validation, and record mode from current evidence.
 - [ ] Flywheel logging delegated or ruled out for the series: local traces exist; no graph mutation until a curated series summary, reproducibility bundle, and critic verdict exist.
 
 ## Immediate Backlog
 
-1. Run an independent critic on the first G5 batch and the canceled official-candidate incident.
-2. Commit the default-preserving architecture env knobs and G5 traces so future reruns are commit-reproducible.
+1. Commit train-only prep for future train-dev search wrappers.
+2. Sync commit `2d4f9d3` plus train-only prep fix to the scratch checkout so future runs do not rely on dirty patches.
 3. Design the next train-dev batch around more substantive candidate mechanisms; do not repeat simple epoch/LR-only sweeps.
-4. If a train-dev candidate clears a predeclared dev10 gate, run paired train-dev comparison before any official finalist nomination.
+4. If a future train-dev candidate clears a predeclared dev3 gate, run dev10 only after a new critic pass, then paired train-dev before any official finalist nomination.
 5. Keep official validation reserved for pre-registered finalists only.
 
 ## Active Assumptions And Ambiguities

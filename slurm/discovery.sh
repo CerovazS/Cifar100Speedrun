@@ -29,7 +29,7 @@ mkdir -p logs outputs/cifar100_speedrun
 source "$CIFAR100_ROOT/env_setup.sh"
 echo "==> $(date) job=${SLURM_JOB_ID:-N/A} node=$(hostname)"
 nvidia-smi --query-gpu=index,name,memory.total,driver_version --format=csv
-python prepare_cifar100_hf.py
+C100_PREP_SPLITS=train python prepare_cifar100_hf.py
 RUNS=${RUNS:-5}
 TARGET=${TARGET:-0.70}
 for EPOCHS in ${EPOCHS_LIST:-4 8 12 16 20}; do

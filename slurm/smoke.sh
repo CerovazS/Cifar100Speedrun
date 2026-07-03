@@ -29,7 +29,7 @@ mkdir -p logs outputs/cifar100_speedrun
 source "$CIFAR100_ROOT/env_setup.sh"
 echo "==> $(date) job=${SLURM_JOB_ID:-N/A} node=$(hostname)"
 nvidia-smi --query-gpu=index,name,memory.total,driver_version --format=csv
-python prepare_cifar100_hf.py
+C100_PREP_SPLITS=train python prepare_cifar100_hf.py
 RUN_ID=${RUN_ID:-smoke_${SLURM_JOB_ID}_$(git rev-parse --short HEAD 2>/dev/null || echo unknown)}
 OUT_DIR="$CIFAR100_ROOT/outputs/cifar100_speedrun/${RUN_ID}"
 if [[ -e "$OUT_DIR" ]]; then

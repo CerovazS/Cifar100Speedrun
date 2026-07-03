@@ -51,7 +51,7 @@ trap copy_logs EXIT
 
 echo "==> $(date) job=${SLURM_JOB_ID:-N/A} node=$(hostname)"
 nvidia-smi --query-gpu=index,uuid,name,memory.total,driver_version --format=csv
-python prepare_cifar100_hf.py
+C100_PREP_SPLITS=train python prepare_cifar100_hf.py
 
 for spec in $LR_LIST; do
   lr=${spec%%:*}
