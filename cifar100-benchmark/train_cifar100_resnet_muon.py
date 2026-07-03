@@ -272,6 +272,29 @@ def parse_int_tuple_env(name, default, expected_len):
     return values
 
 
+def parse_lr_schedule_env():
+    lr_schedule = os.getenv("C100_LR_SCHEDULE", "cosine").strip().lower()
+    if lr_schedule not in ("cosine", "onecycle"):
+        raise ValueError(f"C100_LR_SCHEDULE must be 'cosine' or 'onecycle', got {lr_schedule!r}")
+    onecycle_pct_up = float(os.getenv("C100_ONECYCLE_PCT_UP", "0.30"))
+    if not math.isfinite(onecycle_pct_up) or not 0.0 < onecycle_pct_up < 1.0:
+        raise ValueError(f"C100_ONECYCLE_PCT_UP must be finite and in (0, 1), got {onecycle_pct_up!r}")
+    onecycle_div_factor = float(os.getenv("C100_ONECYCLE_DIV_FACTOR", "10.0"))
+    if not math.isfinite(onecycle_div_factor) or onecycle_div_factor <= 0.0:
+        raise ValueError(f"C100_ONECYCLE_DIV_FACTOR must be finite and positive, got {onecycle_div_factor!r}")
+    return lr_schedule, onecycle_pct_up, onecycle_div_factor
+
+
+def lr_multiplier(lr_schedule, progress, onecycle_pct_up, onecycle_div_factor):
+    if lr_schedule == "cosine":
+        return 0.5 * (1.0 + math.cos(math.pi * progress))
+    if progress < onecycle_pct_up:
+        warmup_progress = progress / onecycle_pct_up
+        return (1.0 / onecycle_div_factor) + (1.0 - (1.0 / onecycle_div_factor)) * warmup_progress
+    decay_progress = (progress - onecycle_pct_up) / (1.0 - onecycle_pct_up)
+    return 0.5 * (1.0 + math.cos(math.pi * decay_progress))
+
+
 def gpu_metadata():
     metadata = {
         "torch_device_name": torch.cuda.get_device_name(),
@@ -331,6 +354,9 @@ def train_once(
     target,
     label_smoothing,
     cutout_size,
+    lr_schedule,
+    onecycle_pct_up,
+    onecycle_div_factor,
     evaluate_validation=True,
 ):
     seed_all(seed)
@@ -358,7 +384,7 @@ def train_once(
             loss = F.cross_entropy(logits.float(), y, label_smoothing=label_smoothing)
             loss.backward()
             progress = step / total_steps
-            lr_mult = 0.5 * (1.0 + math.cos(math.pi * progress))
+            lr_mult = lr_multiplier(lr_schedule, progress, onecycle_pct_up, onecycle_div_factor)
             muon.param_groups[0]["lr"] = float(os.getenv("C100_MUON_LR", "0.035")) * lr_mult
             sgd.param_groups[0]["lr"] = float(os.getenv("C100_BIAS_LR", "0.02")) * lr_mult
             muon.step(); sgd.step()
@@ -430,6 +456,7 @@ def main():
     cutout_size = int(os.getenv("C100_CUTOUT_SIZE", "0"))
     if cutout_size < 0:
         raise ValueError(f"C100_CUTOUT_SIZE must be non-negative, got {cutout_size}")
+    lr_schedule, onecycle_pct_up, onecycle_div_factor = parse_lr_schedule_env()
     output_dir_raw = os.getenv("C100_OUTPUT_DIR", "")
     output_dir = Path(output_dir_raw) if output_dir_raw else None
     train_images, train_labels = load_split("train")
@@ -472,6 +499,9 @@ def main():
         "bias_lr": float(os.getenv("C100_BIAS_LR", "0.02")),
         "label_smoothing": label_smoothing,
         "cutout_size": cutout_size,
+        "lr_schedule": lr_schedule,
+        "onecycle_pct_up": onecycle_pct_up,
+        "onecycle_div_factor": onecycle_div_factor,
         "no_tta": True,
         "git_sha": git_sha(),
         "torch_version": torch.__version__,
@@ -481,7 +511,7 @@ def main():
     if output_dir is not None:
         write_json(output_dir / "config.json", config)
         write_repro_metadata(output_dir)
-    print(f"config model=simple_resnet_muon runs={runs} epochs={epochs} batch={batch_size} target={target} validation_source={validation_source} compile={int(compile_enabled)} compile_mode={compile_mode_label} label_smoothing={label_smoothing} cutout_size={cutout_size} no_tta=1")
+    print(f"config model=simple_resnet_muon runs={runs} epochs={epochs} batch={batch_size} target={target} validation_source={validation_source} compile={int(compile_enabled)} compile_mode={compile_mode_label} label_smoothing={label_smoothing} cutout_size={cutout_size} lr_schedule={lr_schedule} onecycle_pct_up={onecycle_pct_up} onecycle_div_factor={onecycle_div_factor} no_tta=1")
     print("---------------------------------------------------------------------------------")
     print("|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |")
     print("---------------------------------------------------------------------------------")
@@ -498,6 +528,9 @@ def main():
         target,
         label_smoothing,
         cutout_size,
+        lr_schedule,
+        onecycle_pct_up,
+        onecycle_div_factor,
         evaluate_validation=False,
     )
     if output_dir is not None:
@@ -520,6 +553,9 @@ def main():
             target,
             label_smoothing,
             cutout_size,
+            lr_schedule,
+            onecycle_pct_up,
+            onecycle_div_factor,
         )
         if output_dir is not None:
             append_metrics(output_dir / "metrics.csv", row)

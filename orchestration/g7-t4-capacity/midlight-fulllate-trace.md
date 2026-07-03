@@ -51,3 +51,12 @@ sbatch slurm/paired_compare.sh
 ## Stop Conditions
 
 Stop and do not relaunch into the same run id if the job uses official validation, wrong account, wrong checkout, reused output path, nonzero wrapper guard from real config mismatch, or modified validation/timing semantics.
+
+## Submission
+
+- Initial `sbatch` attempt after jobs `48431371` and `48431372` failed before allocation with `QOSMaxSubmitJobPerUserLimit`.
+- This is a scheduler submission limit, not a scientific rejection. Submit this run id after one active debug-QOS slot is free.
+- Submitted batch job after slots freed: `48432417`
+- Initial state: `PENDING (Priority)`
+- Final state: `COMPLETED`, exit `0:0`, elapsed `00:07:04`
+- Result: KILL. Candidate mean train-dev accuracy `0.694333` is close but below the `0.695` gate, mean validation accuracy delta `-0.003067` misses the `-0.0025` gate, and mean time ratio `0.977084` is far above the `0.90` speed gate.

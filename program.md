@@ -35,18 +35,19 @@ Validation-policy reset and next workstream design. G1 controls, G2 interactive 
 - [x] Flywheel logging delegated or ruled out for the first G5 batch: ruled out for now because all first-batch pilots are negative screening evidence and no record/finalist claim exists.
 - [x] G5b objective completed: T4 shallow recovery, T5 cutout8, and T6 batch-1536 all killed on train-dev evidence. No candidate is promotable.
 - [x] Post-G5b control hardening completed: paired wrapper now sanitizes baseline env, validates declared candidate diffs, and the remote G6 script path is quarantined.
-- [ ] Validation policy corrected after user review: official validation is required for pre-registered record evidence and must use official `train,test` split prep; exploratory search remains `train_dev`.
+- [x] Validation policy corrected after user review: official validation is required for pre-registered record evidence and must use official `train,test` split prep; exploratory search remains `train_dev`.
 - [x] G7 trajectories selected for immediate launch: see `orchestration/g7-search/assignments.md` and `orchestration/g7-t4-capacity/*-trace.md`.
 - [x] G7 critical audit completed for T4 train-dev dev3 only: conditional pass; no official/finalist launch is approved yet.
-- [ ] G7 objective completed: each launched workstream has isolated outputs, analyzed results, and a keep/kill/promote decision.
+- [x] G7-T4 capacity objective completed: three train-dev paired candidates all killed; see `orchestration/g7-t4-capacity/result.md`.
+- [ ] G7 schedule/Muon objective completed: wrapper support, critic pass, isolated runs, and keep/kill/promote decision still pending.
 - [ ] Flywheel logging delegated: logger must use `$flywheel-log` for any record, finalist, or synthesis node; negative local screens may be logged only after curation.
 
 ## Immediate Backlog
 
-1. Finish the G7 validation-rule audit, remote-state audit, and trajectory design subagent passes.
-2. Patch only the orchestration/code surfaces needed for official-compliant workstreams; do not change validation semantics, timing boundaries, or dataset labels.
-3. Launch train-dev workstreams for exploratory mechanisms and official 30-run workstreams only when they are explicitly pre-registered with `RECORD=1`.
-4. Do not cancel or block distinct compliant workstream runs for being concurrent; only intervene for wrong account/path, output reuse, validation-rule violation, or user instruction.
+1. Patch paired-wrapper allowlist/config-diff support for schedule knobs already implemented locally, then run a critic pass.
+2. Design and launch a bounded G7-T2 train-dev one-cycle schedule workstream if critic passes.
+3. Implement Muon mechanics knobs only after wrapper support is planned from the read-only spec.
+4. Launch official 30-run workstreams only when explicitly pre-registered with `RECORD=1`.
 5. Build or select a more efficient official paired runner if `slurm/paired_compare.sh` is too slow for 30 paired official seeds.
 
 ## Active Assumptions And Ambiguities

@@ -76,6 +76,7 @@ clear_training_env() {
   unset C100_BATCH C100_MUON_LR C100_BIAS_LR
   unset C100_WIDTHS C100_BLOCKS
   unset C100_LABEL_SMOOTHING C100_CUTOUT_SIZE
+  unset C100_LR_SCHEDULE C100_ONECYCLE_PCT_UP C100_ONECYCLE_DIV_FACTOR
   unset C100_COMPILE C100_COMPILE_MODE C100_SLEEP_CYCLES
 }
 
@@ -84,7 +85,7 @@ validate_candidate_env() {
   for token in ${CANDIDATE_ENV:-}; do
     key=${token%%=*}
     case "$key" in
-      C100_EPOCHS|C100_BATCH|C100_WIDTHS|C100_BLOCKS|C100_MUON_LR|C100_BIAS_LR|C100_LABEL_SMOOTHING|C100_CUTOUT_SIZE)
+      C100_EPOCHS|C100_BATCH|C100_WIDTHS|C100_BLOCKS|C100_MUON_LR|C100_BIAS_LR|C100_LABEL_SMOOTHING|C100_CUTOUT_SIZE|C100_LR_SCHEDULE|C100_ONECYCLE_PCT_UP|C100_ONECYCLE_DIV_FACTOR)
         ;;
       *)
         echo "Refusing untracked CANDIDATE_ENV key: $key" >&2
@@ -192,6 +193,9 @@ env_to_field = {
     "C100_BIAS_LR": "bias_lr",
     "C100_LABEL_SMOOTHING": "label_smoothing",
     "C100_CUTOUT_SIZE": "cutout_size",
+    "C100_LR_SCHEDULE": "lr_schedule",
+    "C100_ONECYCLE_PCT_UP": "onecycle_pct_up",
+    "C100_ONECYCLE_DIV_FACTOR": "onecycle_div_factor",
 }
 compare_fields = [
     "epochs",
@@ -208,6 +212,9 @@ compare_fields = [
     "bias_lr",
     "label_smoothing",
     "cutout_size",
+    "lr_schedule",
+    "onecycle_pct_up",
+    "onecycle_div_factor",
 ]
 if candidate_env and baseline_config and candidate_config:
     declared_fields = set()

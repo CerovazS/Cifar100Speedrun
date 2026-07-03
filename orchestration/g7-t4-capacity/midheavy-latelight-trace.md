@@ -51,3 +51,10 @@ sbatch slurm/paired_compare.sh
 ## Stop Conditions
 
 Stop and do not relaunch into the same run id if the job uses official validation, wrong account, wrong checkout, reused output path, nonzero wrapper guard from real config mismatch, or modified validation/timing semantics.
+
+## Submission
+
+- Submitted batch job: `48431372`
+- Initial state: `RUNNING` on `lrdn2731`
+- Final state: `COMPLETED`, exit `0:0`, elapsed `00:06:58`
+- Result: KILL. Mean time ratio `1.013883`, mean validation accuracy delta `-0.015733`, and candidate mean train-dev accuracy `0.681400` all fail the promotion gate.
