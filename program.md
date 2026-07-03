@@ -16,8 +16,8 @@ G5b train-dev-only second batch. G1 controls, G2 interactive smoke, G3 official 
 - `research-orchestrator` T3 Architecture Pareto: complete; kill narrow/basewidth, keep `shallow122` only as a possible combined follow-up candidate.
 - `scientific-critic` G5 Batch Reviewer: required before any next G5 expansion or finalist promotion.
 - `research-orchestrator` G5b-T4 Shallow recovery: complete; KILL after paired train-dev dev3.
-- `scientific-implementer` G5b-T5 Cheap regularization knobs: local patch committed, pending remote sync before any run.
-- `experiment-architect` G5b-T6 Batch/schedule design: complete; pending main launch decision after paired wrapper fix is synced.
+- `scientific-implementer` G5b-T5 Cheap regularization knobs/run: complete; KILL after cutout8 paired train-dev dev3.
+- `experiment-architect` G5b-T6 Batch/schedule design/run: complete; KILL after paired train-dev dev3 batch-1536 pilot.
 - `paper-explorer` Reader: active AirBench / fast-CIFAR source sweep.
 - `paper-explorer` PaperScout: active Muon / optimizer source sweep.
 - `paper-explorer` Scholar: active augmentation / regularization source sweep.
@@ -33,13 +33,13 @@ G5b train-dev-only second batch. G1 controls, G2 interactive smoke, G3 official 
 - [x] Objective completed for first G5 batch: T1/T2 killed; T3 only leaves `shallow122` as a possible combined follow-up, not a finalist.
 - [x] Independent G5 batch audit completed: see `orchestration/g5-batch-audit/summary.md`; verdict blocks dev10, paired train-dev, official validation, and record mode from current evidence.
 - [x] Flywheel logging delegated or ruled out for the first G5 batch: ruled out for now because all first-batch pilots are negative screening evidence and no record/finalist claim exists.
-- [ ] G5b objective completed: T4 killed; T5 and T6 remain pending run/audit after remote sync.
+- [x] G5b objective completed: T4 shallow recovery, T5 cutout8, and T6 batch-1536 all killed on train-dev evidence. No candidate is promotable.
 
 ## Immediate Backlog
 
-1. Sync commits through the paired wrapper guard fix to the scratch checkout.
-2. Decide whether to launch G5b-T6 batch `1536` paired dev3; it has a predeclared gate and no code changes.
-3. Design the first G5b-T5 regularization run using only committed knobs; do not launch before remote sync and trace.
+1. Run a critic over completed G5b results and control incidents before launching any new GPU work.
+2. Design the next batch around a more substantive mechanism; current simple compression, scalar LR, shallow architecture, batch-size, and cutout8 paths are killed.
+3. Prevent further use of remote untracked `orchestration/g6-official-retrain/` until G6 is explicitly unblocked.
 4. If a future train-dev candidate clears a predeclared dev3 gate, run dev10 only after a new critic pass, then paired train-dev before any official finalist nomination.
 5. Keep official validation reserved for pre-registered finalists only.
 
@@ -50,6 +50,7 @@ G5b train-dev-only second batch. G1 controls, G2 interactive smoke, G3 official 
 - Operational repository path while `$WORK` is full is `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun`; old PAERLE/YENDRI/absolute WORK launch paths must remain removed from active scripts.
 - Incident `48410752`/`48410889`: an external old-path official-candidate script under `$WORK` attempted 30-run official candidate comparisons from a PAERLE/YENDRI checkout. Job `48410889` was canceled after 1m52s allocation and is not scientific evidence. See `orchestration/control-incidents/2026-07-03-official-candidate-cancel.md`.
 - Incident `48412222`: an unexpected G6 official-validation job was found pending from a remote untracked `orchestration/g6-official-retrain/` script and canceled before allocation. See `orchestration/control-incidents/2026-07-03-g6-official-cancel.md`.
+- Incident `48412394`: the same prohibited G6 official-validation script was retried, ran for `00:04:22`, touched official validation for seed `880000`, and was canceled. Partial official metrics are not accepted evidence. See `orchestration/control-incidents/2026-07-03-g6-official-retry-cancel.md`.
 
 ## No-Run Gates
 
