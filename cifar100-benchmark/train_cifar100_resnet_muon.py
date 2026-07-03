@@ -83,6 +83,25 @@ def random_crop_flip(x, pad=4):
     return torch.where(flip, out.flip(-1), out).contiguous(memory_format=torch.channels_last)
 
 
+@torch.no_grad()
+def random_cutout(x, size):
+    if size <= 0:
+        return x
+    b, _, h, w = x.shape
+    size = min(size, h, w)
+    ys = torch.randint(0, h - size + 1, (b,), device=x.device)
+    xs = torch.randint(0, w - size + 1, (b,), device=x.device)
+    yy = torch.arange(h, device=x.device).view(1, h, 1)
+    xx = torch.arange(w, device=x.device).view(1, 1, w)
+    mask = (
+        (yy >= ys.view(b, 1, 1))
+        & (yy < (ys + size).view(b, 1, 1))
+        & (xx >= xs.view(b, 1, 1))
+        & (xx < (xs + size).view(b, 1, 1))
+    )
+    return x.masked_fill(mask.view(b, 1, h, w), 0.0).contiguous(memory_format=torch.channels_last)
+
+
 class Block(nn.Module):
     def __init__(self, channels_in, channels_out, stride=1):
         super().__init__()
@@ -299,7 +318,21 @@ def write_repro_metadata(output_dir):
     return metadata
 
 
-def train_once(run_name, seed, model, train_images, train_labels, test_images, test_labels, epochs, batch_size, target, evaluate_validation=True):
+def train_once(
+    run_name,
+    seed,
+    model,
+    train_images,
+    train_labels,
+    test_images,
+    test_labels,
+    epochs,
+    batch_size,
+    target,
+    label_smoothing,
+    cutout_size,
+    evaluate_validation=True,
+):
     seed_all(seed)
     reset_model(model)
     muon_params = [p for p in model.parameters() if p.ndim >= 2]
@@ -319,8 +352,10 @@ def train_once(run_name, seed, model, train_images, train_labels, test_images, t
     while step < total_steps:
         for x, y in batches(train_images, train_labels, batch_size):
             x = normalize(random_crop_flip(x))
+            if cutout_size > 0:
+                x = random_cutout(x, cutout_size)
             logits = model(x)
-            loss = F.cross_entropy(logits.float(), y, label_smoothing=0.05)
+            loss = F.cross_entropy(logits.float(), y, label_smoothing=label_smoothing)
             loss.backward()
             progress = step / total_steps
             lr_mult = 0.5 * (1.0 + math.cos(math.pi * progress))
@@ -389,6 +424,12 @@ def main():
     dev_split_seed = int(os.getenv("C100_DEV_SPLIT_SEED", "20260703"))
     widths = parse_int_tuple_env("C100_WIDTHS", (64, 128, 256), 3)
     blocks = parse_int_tuple_env("C100_BLOCKS", (2, 2, 2), 3)
+    label_smoothing = float(os.getenv("C100_LABEL_SMOOTHING", "0.05"))
+    if not math.isfinite(label_smoothing) or not 0.0 <= label_smoothing <= 1.0:
+        raise ValueError(f"C100_LABEL_SMOOTHING must be finite and in [0, 1], got {label_smoothing!r}")
+    cutout_size = int(os.getenv("C100_CUTOUT_SIZE", "0"))
+    if cutout_size < 0:
+        raise ValueError(f"C100_CUTOUT_SIZE must be non-negative, got {cutout_size}")
     output_dir_raw = os.getenv("C100_OUTPUT_DIR", "")
     output_dir = Path(output_dir_raw) if output_dir_raw else None
     train_images, train_labels = load_split("train")
@@ -429,6 +470,8 @@ def main():
         "blocks": list(blocks),
         "muon_lr": float(os.getenv("C100_MUON_LR", "0.035")),
         "bias_lr": float(os.getenv("C100_BIAS_LR", "0.02")),
+        "label_smoothing": label_smoothing,
+        "cutout_size": cutout_size,
         "no_tta": True,
         "git_sha": git_sha(),
         "torch_version": torch.__version__,
@@ -438,11 +481,25 @@ def main():
     if output_dir is not None:
         write_json(output_dir / "config.json", config)
         write_repro_metadata(output_dir)
-    print(f"config model=simple_resnet_muon runs={runs} epochs={epochs} batch={batch_size} target={target} validation_source={validation_source} compile={int(compile_enabled)} compile_mode={compile_mode_label} no_tta=1")
+    print(f"config model=simple_resnet_muon runs={runs} epochs={epochs} batch={batch_size} target={target} validation_source={validation_source} compile={int(compile_enabled)} compile_mode={compile_mode_label} label_smoothing={label_smoothing} cutout_size={cutout_size} no_tta=1")
     print("---------------------------------------------------------------------------------")
     print("|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |")
     print("---------------------------------------------------------------------------------")
-    warmup = train_once("warmup", seed_base - 1, model, train_images, train_labels, eval_images, eval_labels, min(1.0, epochs), batch_size, target, evaluate_validation=False)
+    warmup = train_once(
+        "warmup",
+        seed_base - 1,
+        model,
+        train_images,
+        train_labels,
+        eval_images,
+        eval_labels,
+        min(1.0, epochs),
+        batch_size,
+        target,
+        label_smoothing,
+        cutout_size,
+        evaluate_validation=False,
+    )
     if output_dir is not None:
         write_json(output_dir / "warmup.json", warmup)
     vals, times = [], []
@@ -450,7 +507,20 @@ def main():
         torch.cuda.empty_cache(); torch.cuda.synchronize()
         if sleep_cycles > 0:
             torch.cuda._sleep(sleep_cycles)
-        row = train_once(run + 1, seed_base + run, model, train_images, train_labels, eval_images, eval_labels, epochs, batch_size, target)
+        row = train_once(
+            run + 1,
+            seed_base + run,
+            model,
+            train_images,
+            train_labels,
+            eval_images,
+            eval_labels,
+            epochs,
+            batch_size,
+            target,
+            label_smoothing,
+            cutout_size,
+        )
         if output_dir is not None:
             append_metrics(output_dir / "metrics.csv", row)
         val = row["val_acc"]
