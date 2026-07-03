@@ -1,0 +1,21 @@
+srun: job 48402049 queued and waiting for resources
+srun: job 48402049 has been allocated resources
+[env_setup] cifar100 ready (python=Python 3.11.15)
+==> Fri Jul  3 16:00:16 CEST 2026 job=48402049 node=lrdn0992.leonardo.local
+index, name, memory.total [MiB], driver_version
+0, NVIDIA A100-SXM-64GB, 65536 MiB, 535.274.02
+cifar100/train.pt: exists images=(50000, 32, 32, 3) labels=(50000,)
+cifar100/test.pt: exists images=(10000, 32, 32, 3) labels=(10000,)
+mean [0.507075, 0.486549, 0.440918]
+std [0.267334, 0.256438, 0.27615]
+config model=simple_resnet_muon runs=1 epochs=0.05 batch=1024 target=0.01 validation_source=train_dev compile=1 compile_mode=default no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.0155  |    skipped  |      skipped  |      55.1285  |
+|       1  |   eval  |     0.0152  |     0.0136  |       1.0000  |      0.1047  |
+Mean val accuracy after 1 runs: 0.013600 | Mean time: 0.104731s
+Val accuracies: Mean: 0.013600    Std: 0.000000    Min: 0.013600    Max: 0.013600
+Times (s):      Mean: 0.104731    Std: 0.000000    Min: 0.104731    Max: 0.104731
+Target 0.0100 hit count: 1/1
+==> smoke done Fri Jul  3 16:02:55 CEST 2026

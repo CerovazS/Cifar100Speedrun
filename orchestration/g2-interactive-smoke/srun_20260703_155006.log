@@ -1,0 +1,6 @@
+srun: job 48401141 queued and waiting for resources
+srun: job 48401141 has been allocated resources
+srun: error: Task launch for StepId=48401141.0 failed on node lrdn1721: Communication connection failure
+srun: error: Application launch failed: Communication connection failure
+srun: Job step aborted
+tcsetattr: Inappropriate ioctl for device
