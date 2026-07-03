@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64G
-#SBATCH --time=01:00:00
+#SBATCH --time=00:30:00
 #SBATCH --output=logs/paired-%j.out
 #SBATCH --error=logs/paired-%j.err
 set -euo pipefail
