@@ -73,6 +73,7 @@ printf "pair_index,seed,first,second\n" > "$ORDER_FILE"
 
 clear_training_env() {
   unset BATCH MUON_LR BIAS_LR
+  unset C100_EPOCHS
   unset C100_BATCH C100_MUON_LR C100_BIAS_LR
   unset C100_WIDTHS C100_BLOCKS
   unset C100_LABEL_SMOOTHING C100_CUTOUT_SIZE
@@ -107,7 +108,7 @@ run_method() {
   mkdir -p "$out_dir"
   echo "===== seed=${seed} pair_index=${pair_index} order=${order} label=${label} epochs=${EPOCHS} target=${TARGET} validation_source=${VALIDATION_SOURCE} ====="
   C100_RUNS=1 \
-  C100_EPOCHS=$EPOCHS \
+  C100_EPOCHS=${C100_EPOCHS:-$EPOCHS} \
   C100_TARGET=$TARGET \
   C100_SEED_BASE=$seed \
   C100_VALIDATION_SOURCE=$VALIDATION_SOURCE \

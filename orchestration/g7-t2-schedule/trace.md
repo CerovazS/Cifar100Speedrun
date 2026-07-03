@@ -72,3 +72,40 @@ sbatch slurm/paired_compare.sh
 ## Stop Conditions
 
 Do not launch until trainer and wrapper patches are committed/synced to the remote scratch checkout, remote `bash -n` and trainer compile checks pass, output dirs are absent, and a critic approves the plan.
+
+## Submission
+
+- Local commit: `72322f2`
+- Remote applied commit: `c807984`
+- Remote preflight passed: `bash -n slurm/paired_compare.sh`, `python -m py_compile train_cifar100_resnet_muon.py`, schedule static check, output dirs absent.
+- Submitted `onecycle-default`: job `48433759`, initial state `PENDING`.
+- Submitted `onecycle-highlr`: job `48433762`, initial state `PENDING`.
+- Final state:
+  - `onecycle-default`: `COMPLETED`, exit `0:0`, elapsed `00:06:37`
+  - `onecycle-highlr`: `COMPLETED`, exit `0:0`, elapsed `00:06:31`
+- Result:
+  - `onecycle-default`: PASS dev3 gate; candidate mean acc `0.707867`, delta `+0.016267`, time ratio `1.000786`.
+  - `onecycle-highlr`: numeric pass but dominated by default one-cycle; kill.
+
+## Dev10 Promotion
+
+- Result audit: pass with caveats for promoting only `onecycle-default` to train-dev dev10.
+- Dev10 run id: `g7t2_onecycle_default_dev10_20260703T200606Z`
+- Command:
+
+```bash
+cd /leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun
+RUN_ID=g7t2_onecycle_default_dev10_20260703T200606Z \
+RECORD=0 \
+RUNS=10 \
+EPOCHS=14 \
+VALIDATION_SOURCE=train_dev \
+BASE_SEED=880000 \
+CANDIDATE_ENV='C100_LR_SCHEDULE=onecycle C100_ONECYCLE_PCT_UP=0.30 C100_ONECYCLE_DIV_FACTOR=10.0' \
+sbatch slurm/paired_compare.sh
+```
+
+- Submitted job: `48436515`
+- Initial state: `PENDING`
+- Final state: `COMPLETED`, exit `0:0`, elapsed `00:16:43`
+- Dev10 result: candidate mean train-dev accuracy `0.705820`, baseline mean `0.693100`, mean delta `+0.012720`, mean time ratio `0.994283`.

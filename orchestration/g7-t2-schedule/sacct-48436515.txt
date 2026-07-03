@@ -1,0 +1,4 @@
+JobID|JobName|State|ExitCode|Elapsed|AllocTRES|NodeList
+48436515|c100-paired|COMPLETED|0:0|00:16:43|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1|lrdn1794
+48436515.batch|batch|COMPLETED|0:0|00:16:43|cpu=8,gres/gpu=1,mem=64G,node=1|lrdn1794
+48436515.extern|extern|COMPLETED|0:0|00:16:43|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1|lrdn1794

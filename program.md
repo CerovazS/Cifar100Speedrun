@@ -39,16 +39,17 @@ Validation-policy reset and next workstream design. G1 controls, G2 interactive 
 - [x] G7 trajectories selected for immediate launch: see `orchestration/g7-search/assignments.md` and `orchestration/g7-t4-capacity/*-trace.md`.
 - [x] G7 critical audit completed for T4 train-dev dev3 only: conditional pass; no official/finalist launch is approved yet.
 - [x] G7-T4 capacity objective completed: three train-dev paired candidates all killed; see `orchestration/g7-t4-capacity/result.md`.
-- [ ] G7 schedule/Muon objective completed: wrapper support, critic pass, isolated runs, and keep/kill/promote decision still pending.
+- [x] G7-T2 schedule dev3/dev10 completed: one-cycle default promoted to official/finalist audit pending result critic; high-LR killed. See `orchestration/g7-t2-schedule/result.md`.
+- [ ] G7 official/finalist objective completed: pre-registration, critic pass, official 30-run paired evidence, and logging still pending.
 - [ ] Flywheel logging delegated: logger must use `$flywheel-log` for any record, finalist, or synthesis node; negative local screens may be logged only after curation.
 
 ## Immediate Backlog
 
-1. Patch paired-wrapper allowlist/config-diff support for schedule knobs already implemented locally, then run a critic pass.
-2. Design and launch a bounded G7-T2 train-dev one-cycle schedule workstream if critic passes.
-3. Implement Muon mechanics knobs only after wrapper support is planned from the read-only spec.
-4. Launch official 30-run workstreams only when explicitly pre-registered with `RECORD=1`.
-5. Build or select a more efficient official paired runner if `slurm/paired_compare.sh` is too slow for 30 paired official seeds.
+1. Run result critic on G7-T2 dev10 and pre-register official `onecycle-default` only if audit passes.
+2. Decide whether `slurm/paired_compare.sh` is acceptable for official 30-run walltime or needs an efficient record runner.
+3. Launch official 30-run workstream only with `RECORD=1`, `RUNS=30`, `VALIDATION_SOURCE=official`, and split prep `train,test`.
+4. Implement Muon mechanics knobs only after the official schedule path is resolved or parallel capacity is available.
+5. Delegate Flywheel logging after official/finalist evidence or explicitly log negative train-dev screens as local-only if no official candidate survives.
 
 ## Active Assumptions And Ambiguities
 
