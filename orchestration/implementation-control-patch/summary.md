@@ -163,3 +163,35 @@ git diff --check
 ```
 
 Results: all shell syntax checks passed for every `.sh` file; `git diff --check` passed.
+
+## G1c Scratch Checkout Launch Patch
+
+Implemented on 2026-07-03 without launching jobs, deleting files, or committing.
+
+### Objective
+
+Allow the CIFAR-100 Speedrun checkout to run from `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun` while `$WORK` is full, without changing benchmark semantics.
+
+### Files Touched In This Update
+
+- `env_setup.sh`
+- `slurm/smoke.sh`
+- `slurm/discovery.sh`
+- `slurm/official_baseline.sh`
+- `slurm/paired_compare.sh`
+- `README.md`
+- `program.md`
+- `program/02-repo-control.md`
+- `program/05-plan-audit.md`
+- `orchestration/implementation-control-patch/summary.md`
+
+### Controls Preserved
+
+- `IscrC_SIMP` account guard remains in every wrapper.
+- Smoke and discovery still use `train_dev`; official baseline still uses `official`; paired record mode still requires `VALIDATION_SOURCE=official RUNS=30`.
+- Output directory reuse checks remain in place.
+- No job was launched.
+
+### Remaining Caveat
+
+Relative Slurm stdout/stderr paths are intended for `sbatch` from the checkout root. Submitting from another directory with only `CIFAR100_ROOT` set may place scheduler logs outside `$CIFAR100_ROOT/logs`, which would break the post-run log copy/analyzer path.

@@ -34,11 +34,10 @@ Invalid optimization surfaces for records:
 ## Current Risks
 
 - `C100_COMPILE=0` crashes because `off` is unquoted in the trainer config print.
-- `TARGET` in `slurm/discovery.sh` and `slurm/official_baseline.sh` is not passed as `C100_TARGET`.
-- `official_baseline.sh` ignores analyzer failures with `|| true`.
+- Prior wrapper issues around `TARGET` propagation and masked official-baseline analyzer failures are fixed locally; keep them covered by static checks.
 - `SMOKE_RESULT.md` has stale `50-run` wording.
 - `env_setup.sh` activates the CIFAR-100-specific `uv` environment at `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/envs/venv311`.
-- SLURM scripts bill `IscrC_SIMP` and must stage under `/leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun`.
+- SLURM scripts bill `IscrC_SIMP` and may run from a scratch checkout while `$WORK` is full. Current operational checkout: `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun`.
 - No machine-readable metrics, unique run directory, plots, reproducibility notes, or paired runner exist.
 - Search currently risks repeated official-test exposure because the official test split is the validation gate.
 
@@ -63,7 +62,9 @@ PY
 Remote read-only CINECA check:
 
 ```bash
-cd /leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun
+cd /leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun
+export CIFAR100_ROOT="$(pwd -P)"
+mkdir -p logs outputs/cifar100_speedrun
 source env_setup.sh
 python --version
 python - <<'PY'
@@ -79,7 +80,8 @@ Interactive GPU smoke before batch:
 
 ```bash
 srun -p boost_usr_prod -A IscrC_SIMP --gres=gpu:1 --cpus-per-task=8 --mem=64G --time=00:20:00 --pty bash
-cd /leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun
+cd /leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun
+export CIFAR100_ROOT="$(pwd -P)"
 source env_setup.sh
 python prepare_cifar100_hf.py
 C100_RUNS=1 C100_EPOCHS=0.05 C100_TARGET=0.01 C100_SLEEP_CYCLES=0 python train_cifar100_resnet_muon.py

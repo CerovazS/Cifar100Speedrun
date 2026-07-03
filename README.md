@@ -1,6 +1,6 @@
 # CIFAR-100 A100 Speedrun Autoresearch Benchmark
 
-Remote path: `/leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun`.
+Operational checkout: `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun` while `$WORK` is full. The wrappers also support any checkout root supplied with `CIFAR100_ROOT`.
 
 Goal: train on official CIFAR-100 train images and reach a fixed plain validation accuracy target `k = 70%` on a single A100 in the least training time possible.
 
@@ -50,13 +50,18 @@ Use Cineca account `IscrC_SIMP`. The Slurm scripts refuse to run outside `IscrC_
 
 
 ```bash
-cd /leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun
-UV_PROJECT_ENVIRONMENT=/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/envs/venv311 UV_LINK_MODE=copy uv sync --python 3.11
+cd /leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun
+export CIFAR100_ROOT="$(pwd -P)"
+export CIFAR100_VENV="${SCRATCH:-/leonardo_scratch/large/userexternal/lcerovaz}/cifar100_speedrun/envs/venv311"
+UV_PROJECT_ENVIRONMENT="$CIFAR100_VENV" UV_LINK_MODE=copy uv sync --python 3.11
 source env_setup.sh
 python prepare_cifar100_hf.py
+mkdir -p "$CIFAR100_ROOT/logs" "$CIFAR100_ROOT/outputs/cifar100_speedrun"
 sbatch slurm/smoke.sh
 # Optional future calibration only: sbatch slurm/discovery.sh
 ```
+
+By default `env_setup.sh` keeps the Python environment and package/kernel caches under `${SCRATCH:-/leonardo_scratch/large/userexternal/lcerovaz}/cifar100_speedrun`, not under `$WORK`. Benchmark outputs stay under `$CIFAR100_ROOT/outputs`, and Slurm stdout/stderr paths are relative `logs/...`, so submit jobs from the checkout root after creating `logs/`. Submitting from another directory with only `CIFAR100_ROOT` set is unsupported because Slurm resolves relative log paths from the submit directory.
 
 ## Search and record controls
 

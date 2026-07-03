@@ -6,7 +6,7 @@ Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Spee
 
 ## Current Phase
 
-G1 control patch verification and G2 CINECA interactive validation. Static local checks pass, and the main remaining pre-spend gates are subagent audit reconciliation, remote environment setup, one interactive GPU smoke, and the current-default 30-run baseline.
+G1 launch-path control patch verification and G2 CINECA interactive validation. Static local checks for the earlier control patch passed, `$WORK` is full, and the launch wrappers now need to support the scratch checkout before any interactive GPU smoke or batch submission.
 
 ## Subagent Delegation Plan
 
@@ -37,9 +37,9 @@ G1 control patch verification and G2 CINECA interactive validation. Static local
 
 ## Active Assumptions And Ambiguities
 
-- Challenge contract and Flywheel root require `IscrC_SIMP`; local `ssh leonardo` also resolves `$WORK=/leonardo_work/IscrC_SIMP` and `$FAST=/leonardo_scratch/fast/IscrC_SIMP`.
+- Challenge contract and Flywheel root require `IscrC_SIMP`; local `ssh leonardo` also resolves `$WORK=/leonardo_work/IscrC_SIMP`, `$FAST=/leonardo_scratch/fast/IscrC_SIMP`, and `$SCRATCH=/leonardo_scratch/large/userexternal/lcerovaz`.
 - The prompt also mentioned YENDRI/PDR. Treat that as an ambiguity for storage/account only: do not launch PDR/YENDRI record jobs unless explicitly reconciled with the SIMP challenge contract.
-- Repository path for this user is `/leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun`; old PAERLE/YENDRI launch paths must remain removed from active scripts.
+- Operational repository path while `$WORK` is full is `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun`; old PAERLE/YENDRI/absolute WORK launch paths must remain removed from active scripts.
 
 ## No-Run Gates
 

@@ -9,15 +9,24 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64G
 #SBATCH --time=01:00:00
-#SBATCH --output=/leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun/logs/paired-%j.out
-#SBATCH --error=/leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun/logs/paired-%j.err
+#SBATCH --output=logs/paired-%j.out
+#SBATCH --error=logs/paired-%j.err
 set -euo pipefail
 if [[ "${SLURM_JOB_ACCOUNT:-}" != "iscrc_simp" && "${SLURM_JOB_ACCOUNT:-}" != "IscrC_SIMP" ]]; then
   echo "Refusing to run outside IscrC_SIMP." >&2
   exit 2
 fi
-cd /leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun
-source env_setup.sh
+if [[ -z "${CIFAR100_ROOT:-}" ]]; then
+  if [[ -n "${SLURM_SUBMIT_DIR:-}" && -d "$SLURM_SUBMIT_DIR/cifar100-benchmark" ]]; then
+    CIFAR100_ROOT=$(cd "$SLURM_SUBMIT_DIR" && pwd -P)
+  else
+    CIFAR100_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+  fi
+fi
+export CIFAR100_ROOT
+cd "$CIFAR100_ROOT"
+mkdir -p logs outputs/cifar100_speedrun
+source "$CIFAR100_ROOT/env_setup.sh"
 echo "==> $(date) job=${SLURM_JOB_ID:-N/A} node=$(hostname)"
 nvidia-smi --query-gpu=index,uuid,name,memory.total,driver_version --format=csv
 python prepare_cifar100_hf.py
@@ -34,7 +43,7 @@ else
 fi
 BASE_SEED=${BASE_SEED:-880000}
 RUN_ID=${RUN_ID:-paired_${SLURM_JOB_ID}_$(git rev-parse --short HEAD 2>/dev/null || echo unknown)}
-OUT_ROOT=/leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun/outputs/cifar100_speedrun/${RUN_ID}
+OUT_ROOT="$CIFAR100_ROOT/outputs/cifar100_speedrun/${RUN_ID}"
 if [[ "$RECORD" == "1" && "$VALIDATION_SOURCE" != "official" ]]; then
   echo "Refusing RECORD=1 without VALIDATION_SOURCE=official." >&2
   echo "Record evidence must use the frozen official validation split." >&2
@@ -196,8 +205,10 @@ summary = {
 print(json.dumps(summary, indent=2, sort_keys=True))
 PY
 
-cp "/leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun/logs/paired-${SLURM_JOB_ID}.out" "$OUT_ROOT/stdout.log"
-if [[ -f "/leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun/logs/paired-${SLURM_JOB_ID}.err" ]]; then
-  cp "/leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun/logs/paired-${SLURM_JOB_ID}.err" "$OUT_ROOT/stderr.log"
+LOG_OUT="$CIFAR100_ROOT/logs/paired-${SLURM_JOB_ID}.out"
+LOG_ERR="$CIFAR100_ROOT/logs/paired-${SLURM_JOB_ID}.err"
+cp "$LOG_OUT" "$OUT_ROOT/stdout.log"
+if [[ -f "$LOG_ERR" ]]; then
+  cp "$LOG_ERR" "$OUT_ROOT/stderr.log"
 fi
 echo "==> done $(date)"
