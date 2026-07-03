@@ -1,0 +1,13 @@
+{
+  "batch_size": 1024,
+  "epochs": 1.0,
+  "run": "warmup",
+  "seed": 880011,
+  "steps_per_epoch": 48,
+  "target_hit": null,
+  "time_seconds": 18.27840234375,
+  "total_steps": 48,
+  "train_acc": 0.2762,
+  "val_acc": null,
+  "validation_evaluated": false
+}

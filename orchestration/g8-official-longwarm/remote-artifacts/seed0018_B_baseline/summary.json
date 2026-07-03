@@ -1,0 +1,13 @@
+{
+  "runs": 1,
+  "target": 0.7,
+  "target_hit_count": 1,
+  "time_seconds_max": 27.044614791870117,
+  "time_seconds_mean": 27.044614791870117,
+  "time_seconds_min": 27.044614791870117,
+  "time_seconds_std": 0.0,
+  "val_acc_max": 0.7056999802589417,
+  "val_acc_mean": 0.7056999802589417,
+  "val_acc_min": 0.7056999802589417,
+  "val_acc_std": 0.0
+}

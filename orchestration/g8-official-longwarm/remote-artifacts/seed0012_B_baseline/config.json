@@ -1,0 +1,38 @@
+{
+  "batch_size": 1024,
+  "bias_lr": 0.02,
+  "blocks": [
+    2,
+    2,
+    2
+  ],
+  "compile": true,
+  "compile_mode": "default",
+  "cutout_size": 0,
+  "dev_per_class": null,
+  "dev_split_seed": null,
+  "device_name": "NVIDIA A100-SXM-64GB",
+  "epochs": 16.0,
+  "eval_examples": 10000,
+  "git_sha": "2c3edb798dc27d512109a7c49eb8ede82b84c023",
+  "label_smoothing": 0.05,
+  "lr_schedule": "cosine",
+  "model": "simple_resnet_muon",
+  "muon_lr": 0.035,
+  "no_tta": true,
+  "onecycle_div_factor": 10.0,
+  "onecycle_pct_up": 0.3,
+  "runs": 1,
+  "seed_base": 880011,
+  "sleep_cycles": 1000000000,
+  "target": 0.7,
+  "torch_cuda_version": "12.4",
+  "torch_version": "2.4.0+cu124",
+  "train_examples": 50000,
+  "validation_source": "official",
+  "widths": [
+    64,
+    128,
+    256
+  ]
+}

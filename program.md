@@ -6,7 +6,7 @@ Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Spee
 
 ## Current Phase
 
-Official finalist logging handoff and G8 parallel exploratory search. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, G5b train-dev search, and G7-T4 capacity screens are complete. G7-T2 one-cycle passed dev10 train-dev and produced one official 30-run paired candidate result. The repo contract permits and requires official validation for pre-registered record evidence: `RECORD=1`, `VALIDATION_SOURCE=official`, `RUNS=30`, and `C100_PREP_SPLITS=train,test`. Exploratory search remains `train_dev`, but compliant official workstream runs must not be interrupted merely because other workstreams are active.
+G8 official finalist pre-registration and launch. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, G5b train-dev search, and G7-T4 capacity screens are complete. G7-T2 one-cycle passed official evidence and is logged to Flywheel. G8-A `13ep-onecycle-longwarm` passed dev10 train-dev and is pre-registered for official 30-run evidence. The repo contract permits and requires official validation for pre-registered record evidence: `RECORD=1`, `VALIDATION_SOURCE=official`, `RUNS=30`, and `C100_PREP_SPLITS=train,test`. Exploratory search remains `train_dev`, but compliant official workstream runs must not be interrupted merely because other workstreams are active.
 
 ## Subagent Delegation Plan
 
@@ -23,7 +23,7 @@ Official finalist logging handoff and G8 parallel exploratory search. G1 control
 - `research-orchestrator` CINECA State Audit: active; verify remote scratch checkout, official split availability, sync status, and safe launch handoffs without allocating GPU.
 - `scientific-critic` G7 Plan Critic: conditional pass for G7-T4 train-dev dev3 after exact traces, remote sync, output-dir checks, and remote `bash -n`.
 - `research-logger` G7 Official Logger: complete; Flywheel node `c4048ac9-9762-5a64-a87e-4c6360af75d2`.
-- `research-orchestrator` G8-A One-Cycle Compression Frontier: dev3 complete and critic-approved; only `13ep-onecycle-longwarm` may advance to train-dev dev10.
+- `research-orchestrator` G8-A One-Cycle Compression Frontier: official 30-run evidence complete and critic-approved; ready for Flywheel logging.
 - `scientific-implementer` G8-B Muon Mechanics: implementation complete; initial critic blocked loose bounds, follow-up critic passed bounded values; no launch yet.
 - `repo-cartographer` G8-C Train-Only Data Path: complete; recommends low-magnitude train-only color jitter as cleanest next data-path candidate.
 - Housekeeper: Codex cron automation `cifar100-speedrun-housekeeper-20m` is active every 20 minutes. It must not launch jobs or mutate Flywheel/Linear.
@@ -50,14 +50,16 @@ Official finalist logging handoff and G8 parallel exploratory search. G1 control
 - [x] G8-A one-cycle compression dev3 completed and independently audited; promote `13ep-onecycle-longwarm` only.
 - [x] G8-B Muon mechanics implementation/audit completed; commit/sync before any runtime pilot.
 - [x] G8-C train-only data path feasibility completed; see `orchestration/g8-c-data-path/summary.md`.
-- [ ] G8-A `13ep-onecycle-longwarm` dev10 completed.
+- [x] G8-A `13ep-onecycle-longwarm` dev10 completed and audited.
+- [x] G8 official `13ep-onecycle-longwarm` completed and audited.
+- [ ] G8 official Flywheel logging delegated/completed.
 
 ## Immediate Backlog
 
-1. Launch G8-A `13ep-onecycle-longwarm` paired train-dev dev10.
-2. Commit/sync G8-B Muon mechanics knobs before any runtime pilot.
-3. Convert G8-C data-path map into one train-only implementation plan, likely low-magnitude color jitter, after G8-A dev10 decision.
-4. Keep exploratory follow-ups on `train_dev`; use official validation only for pre-registered finalist/record evidence.
+1. Delegate Flywheel logging for the G8 official record candidate.
+3. Commit/sync G8-B Muon mechanics knobs before any runtime pilot.
+4. Convert G8-C data-path map into one train-only implementation plan, likely low-magnitude color jitter, after G8 official decision.
+5. Keep exploratory follow-ups on `train_dev`; use official validation only for pre-registered finalist/record evidence.
 
 ## Active Assumptions And Ambiguities
 
