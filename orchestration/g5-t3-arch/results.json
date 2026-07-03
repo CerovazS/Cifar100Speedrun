@@ -1,0 +1,72 @@
+{
+  "claim_scope": "train_dev exploratory architecture Pareto pilot; no official validation and no record claim",
+  "gpu_allocation": {
+    "elapsed_raw_seconds": 789,
+    "gpu_count_per_job": 1,
+    "gpu_hours": 0.21916666666666668,
+    "jobs": [
+      {
+        "elapsed": "00:04:48",
+        "elapsed_raw_seconds": 288,
+        "job_id": 48407776,
+        "node": "lrdn0055",
+        "state": "COMPLETED"
+      },
+      {
+        "elapsed": "00:04:14",
+        "elapsed_raw_seconds": 254,
+        "job_id": 48407854,
+        "node": "lrdn0055",
+        "state": "COMPLETED"
+      },
+      {
+        "elapsed": "00:04:07",
+        "elapsed_raw_seconds": 247,
+        "job_id": 48408536,
+        "node": "lrdn0668",
+        "state": "COMPLETED"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "blocks": [2, 2, 2],
+      "epochs": 14.0,
+      "job_id": 48407776,
+      "output_dir": "outputs/cifar100_speedrun/g5_t3_arch_narrow222_20260703T144336Z_epochs14",
+      "run_id": "g5_t3_arch_narrow222_20260703T144336Z_epochs14",
+      "target_hit_count": 0,
+      "time_seconds_mean": 17.574506759643555,
+      "val_acc_mean": 0.6712666153907776,
+      "validation_source": "train_dev",
+      "variant": "narrow222",
+      "widths": [48, 96, 192]
+    },
+    {
+      "blocks": [2, 2, 2],
+      "epochs": 14.0,
+      "job_id": 48407854,
+      "output_dir": "outputs/cifar100_speedrun/g5_t3_arch_basewidth222_20260703T144336Z_epochs14",
+      "run_id": "g5_t3_arch_basewidth222_20260703T144336Z_epochs14",
+      "target_hit_count": 0,
+      "time_seconds_mean": 19.807050704956055,
+      "val_acc_mean": 0.6833999752998352,
+      "validation_source": "train_dev",
+      "variant": "basewidth222",
+      "widths": [64, 128, 192]
+    },
+    {
+      "blocks": [1, 2, 2],
+      "epochs": 14.0,
+      "job_id": 48408536,
+      "output_dir": "outputs/cifar100_speedrun/g5_t3_arch_shallow122_20260703T144336Z_epochs14",
+      "run_id": "g5_t3_arch_shallow122_20260703T144336Z_epochs14",
+      "target_hit_count": 0,
+      "time_seconds_mean": 17.119659423828125,
+      "val_acc_mean": 0.6892666816711426,
+      "validation_source": "train_dev",
+      "variant": "shallow122",
+      "widths": [64, 128, 256]
+    }
+  ]
+}

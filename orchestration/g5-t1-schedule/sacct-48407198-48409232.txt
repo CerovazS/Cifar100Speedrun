@@ -1,0 +1,7 @@
+JobID|State|ExitCode|Elapsed|AllocTRES
+48407198|COMPLETED|0:0|00:04:26|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1
+48407198.batch|COMPLETED|0:0|00:04:26|cpu=8,gres/gpu=1,mem=64G,node=1
+48407198.extern|COMPLETED|0:0|00:04:26|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1
+48409232|COMPLETED|0:0|00:06:48|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1
+48409232.batch|COMPLETED|0:0|00:06:48|cpu=8,gres/gpu=1,mem=64G,node=1
+48409232.extern|COMPLETED|0:0|00:06:48|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1

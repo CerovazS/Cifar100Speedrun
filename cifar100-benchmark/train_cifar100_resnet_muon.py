@@ -238,6 +238,21 @@ def safe_env_snapshot():
     return snapshot
 
 
+def parse_int_tuple_env(name, default, expected_len):
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return tuple(default)
+    try:
+        values = tuple(int(part.strip()) for part in raw.split(","))
+    except ValueError as exc:
+        raise ValueError(f"{name} must be comma-separated integers, got {raw!r}") from exc
+    if len(values) != expected_len:
+        raise ValueError(f"{name} must contain {expected_len} integers, got {len(values)} from {raw!r}")
+    if any(value <= 0 for value in values):
+        raise ValueError(f"{name} values must be positive, got {raw!r}")
+    return values
+
+
 def gpu_metadata():
     metadata = {
         "torch_device_name": torch.cuda.get_device_name(),
@@ -372,6 +387,8 @@ def main():
     validation_source = os.getenv("C100_VALIDATION_SOURCE", "official")
     dev_per_class = int(os.getenv("C100_DEV_PER_CLASS", "50"))
     dev_split_seed = int(os.getenv("C100_DEV_SPLIT_SEED", "20260703"))
+    widths = parse_int_tuple_env("C100_WIDTHS", (64, 128, 256), 3)
+    blocks = parse_int_tuple_env("C100_BLOCKS", (2, 2, 2), 3)
     output_dir_raw = os.getenv("C100_OUTPUT_DIR", "")
     output_dir = Path(output_dir_raw) if output_dir_raw else None
     train_images, train_labels = load_split("train")
@@ -384,7 +401,7 @@ def main():
     compile_enabled = os.getenv("C100_COMPILE", "1") != "0"
     compile_mode = os.getenv("C100_COMPILE_MODE", "default")
     compile_mode_label = compile_mode if compile_enabled else "off"
-    model = SimpleResNet().cuda().to(torch.float16).to(memory_format=torch.channels_last)
+    model = SimpleResNet(widths=widths, blocks=blocks).cuda().to(torch.float16).to(memory_format=torch.channels_last)
     # Compile is infrastructure, not a record surface. It is paid in warmup and
     # must not be tuned as a benchmark trick; use it only to make the fixed
     # training implementation run normally on the target stack.
@@ -408,6 +425,8 @@ def main():
         "eval_examples": len(eval_images),
         "compile": compile_enabled,
         "compile_mode": compile_mode_label,
+        "widths": list(widths),
+        "blocks": list(blocks),
         "muon_lr": float(os.getenv("C100_MUON_LR", "0.035")),
         "bias_lr": float(os.getenv("C100_BIAS_LR", "0.02")),
         "no_tta": True,
