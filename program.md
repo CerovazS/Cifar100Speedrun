@@ -6,11 +6,11 @@ Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Spee
 
 ## Current Phase
 
-Post-G5b control hardening and redesign pause. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, and G5b train-dev search are complete. Official record attempts remain blocked until finalists are pre-registered, audited, and run with `RECORD=1` over exactly 30 paired official seeds.
+Validation-policy reset and next workstream design. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, and G5b train-dev search are complete. The repo contract permits and requires official validation for pre-registered record evidence: `RECORD=1`, `VALIDATION_SOURCE=official`, `RUNS=30`, and `C100_PREP_SPLITS=train,test`. Exploratory search remains `train_dev`, but compliant official workstream runs must not be interrupted merely because other workstreams are active.
 
 ## Subagent Delegation Plan
 
-- Main orchestrator: maintain global gates, reconcile subagent evidence, prevent official-validation leakage, and launch only audited follow-up trajectories.
+- Main orchestrator: maintain global gates, reconcile subagent evidence, keep exploratory and official evidence labeled correctly, and launch only audited follow-up trajectories.
 - `research-orchestrator` T1 Schedule compression: complete; kill recommendation after dev3 epoch/LR pilots.
 - `research-orchestrator` T2 Muon mechanics: complete; kill recommendation after dev3 LR pilots.
 - `research-orchestrator` T3 Architecture Pareto: complete; kill narrow/basewidth, keep `shallow122` only as a possible combined follow-up candidate.
@@ -18,11 +18,10 @@ Post-G5b control hardening and redesign pause. G1 controls, G2 interactive smoke
 - `research-orchestrator` G5b-T4 Shallow recovery: complete; KILL after paired train-dev dev3.
 - `scientific-implementer` G5b-T5 Cheap regularization knobs/run: complete; KILL after cutout8 paired train-dev dev3.
 - `experiment-architect` G5b-T6 Batch/schedule design/run: complete; KILL after paired train-dev dev3 batch-1536 pilot.
-- Main orchestrator: harden paired wrapper and quarantine blocked G6 launch surface before any new GPU job.
-- `paper-explorer` Reader: active AirBench / fast-CIFAR source sweep.
-- `paper-explorer` PaperScout: active Muon / optimizer source sweep.
-- `paper-explorer` Scholar: active augmentation / regularization source sweep.
-- `experiment-architect` Planner: active trajectory design after P0 gates.
+- `repo-cartographer` Validation Rule Audit: active; verify authoritative repo split/record semantics and stale program language.
+- `experiment-architect` G7 Trajectory Planner: active; design credible accuracy-preserving speedup workstreams after failed simple-compression pilots.
+- `research-orchestrator` CINECA State Audit: active; verify remote scratch checkout, official split availability, sync status, and safe launch handoffs without allocating GPU.
+- `scientific-critic` G7 Plan Critic: conditional pass for G7-T4 train-dev dev3 after exact traces, remote sync, output-dir checks, and remote `bash -n`.
 - Housekeeper: Codex cron automation `cifar100-speedrun-housekeeper-20m` is active every 20 minutes. It must not launch jobs or mutate Flywheel/Linear.
 
 ## Checklist
@@ -35,15 +34,20 @@ Post-G5b control hardening and redesign pause. G1 controls, G2 interactive smoke
 - [x] Independent G5 batch audit completed: see `orchestration/g5-batch-audit/summary.md`; verdict blocks dev10, paired train-dev, official validation, and record mode from current evidence.
 - [x] Flywheel logging delegated or ruled out for the first G5 batch: ruled out for now because all first-batch pilots are negative screening evidence and no record/finalist claim exists.
 - [x] G5b objective completed: T4 shallow recovery, T5 cutout8, and T6 batch-1536 all killed on train-dev evidence. No candidate is promotable.
-- [x] Post-G5b control hardening completed: paired wrapper now sanitizes baseline env, validates declared candidate diffs, refuses train-dev pilots while official/record/G6 jobs are active, and the remote G6 script path is quarantined.
+- [x] Post-G5b control hardening completed: paired wrapper now sanitizes baseline env, validates declared candidate diffs, and the remote G6 script path is quarantined.
+- [ ] Validation policy corrected after user review: official validation is required for pre-registered record evidence and must use official `train,test` split prep; exploratory search remains `train_dev`.
+- [x] G7 trajectories selected for immediate launch: see `orchestration/g7-search/assignments.md` and `orchestration/g7-t4-capacity/*-trace.md`.
+- [x] G7 critical audit completed for T4 train-dev dev3 only: conditional pass; no official/finalist launch is approved yet.
+- [ ] G7 objective completed: each launched workstream has isolated outputs, analyzed results, and a keep/kill/promote decision.
+- [ ] Flywheel logging delegated: logger must use `$flywheel-log` for any record, finalist, or synthesis node; negative local screens may be logged only after curation.
 
 ## Immediate Backlog
 
-1. Design the next batch around a more substantive mechanism; current simple compression, scalar LR, shallow architecture, batch-size, and cutout8 paths are killed.
-2. Before any new GPU launch, write a new trace with allowed config differences and train-dev-only gates.
-3. Keep official validation blocked until a named finalist passes train-dev evidence and critic audit.
-4. If a future train-dev candidate clears a predeclared dev3 gate, run dev10 only after a new critic pass, then paired train-dev before any official finalist nomination.
-5. Keep official validation reserved for pre-registered finalists only.
+1. Finish the G7 validation-rule audit, remote-state audit, and trajectory design subagent passes.
+2. Patch only the orchestration/code surfaces needed for official-compliant workstreams; do not change validation semantics, timing boundaries, or dataset labels.
+3. Launch train-dev workstreams for exploratory mechanisms and official 30-run workstreams only when they are explicitly pre-registered with `RECORD=1`.
+4. Do not cancel or block distinct compliant workstream runs for being concurrent; only intervene for wrong account/path, output reuse, validation-rule violation, or user instruction.
+5. Build or select a more efficient official paired runner if `slurm/paired_compare.sh` is too slow for 30 paired official seeds.
 
 ## Active Assumptions And Ambiguities
 
@@ -51,14 +55,14 @@ Post-G5b control hardening and redesign pause. G1 controls, G2 interactive smoke
 - The prompt also mentioned YENDRI/PDR. Treat that as an ambiguity for storage/account only: do not launch PDR/YENDRI record jobs unless explicitly reconciled with the SIMP challenge contract.
 - Operational repository path while `$WORK` is full is `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun`; old PAERLE/YENDRI/absolute WORK launch paths must remain removed from active scripts.
 - Incident `48410752`/`48410889`: an external old-path official-candidate script under `$WORK` attempted 30-run official candidate comparisons from a PAERLE/YENDRI checkout. Job `48410889` was canceled after 1m52s allocation and is not scientific evidence. See `orchestration/control-incidents/2026-07-03-official-candidate-cancel.md`.
-- Incident `48412222`: an unexpected G6 official-validation job was found pending from a remote untracked `orchestration/g6-official-retrain/` script and canceled before allocation. See `orchestration/control-incidents/2026-07-03-g6-official-cancel.md`.
-- Incident `48412394`: the same prohibited G6 official-validation script was retried, ran for `00:04:22`, touched official validation for seed `880000`, and was canceled. Partial official metrics are not accepted evidence. See `orchestration/control-incidents/2026-07-03-g6-official-retry-cancel.md`.
-- Remote quarantine: `orchestration/g6-official-retrain/run_g6_official_preregistered.sh` was reversibly renamed to `run_g6_official_preregistered.sh.BLOCKED_BY_MAIN_20260703` on the scratch checkout so it cannot be resubmitted by the same path.
+- Incident `48412222`: an unreviewed G6 official-validation job was found pending from a remote untracked `orchestration/g6-official-retrain/` script and canceled before allocation. See `orchestration/control-incidents/2026-07-03-g6-official-cancel.md`.
+- Incident `48412394`: the same unreviewed G6 official-validation script was retried, ran for `00:04:22`, touched official validation for seed `880000`, and was canceled. The cancellation reason was unreviewed launch surface/path governance, not a blanket ban on official validation. See `orchestration/control-incidents/2026-07-03-g6-official-retry-cancel.md`.
+- Remote quarantine: `orchestration/g6-official-retrain/run_g6_official_preregistered.sh` was reversibly renamed to `run_g6_official_preregistered.sh.BLOCKED_BY_MAIN_20260703` on the scratch checkout so it cannot be resubmitted by the same unreviewed path.
 
 ## No-Run Gates
 
-- No record/search GPU spend before P0 controls in `program/05-plan-audit.md` are fixed or explicitly accepted.
-- No official-test search loops; use train-derived dev validation for exploratory selection.
+- No unlabeled GPU spend: every run must name claim, hypothesis, criterion, validation mode, run id, and output path before launch.
+- No official-test search loops; use train-derived dev validation for exploratory selection, and use official validation only for pre-registered record/finalist workstreams.
 - No validation path edits, no validation-time adaptation, no TTA, no ensembles, no timing-boundary changes for record claims.
 - No output directory reuse; every run gets a unique run id.
 - No Flywheel mutation until curated evidence, critic audit, reproducibility notes, and commit metadata exist.

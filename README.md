@@ -83,11 +83,11 @@ Every serious run should set `C100_OUTPUT_DIR` or use a Slurm wrapper that does 
 
 ## Evidence
 
-See `BASELINE_PROBES.md` for smoke/probe logs. Current v0 setting is `k = 70%`, 30 official runs, 16 epochs, `C100_COMPILE_MODE=default`. The official 30-run baseline is still unrun.
+See `BASELINE_PROBES.md` for smoke/probe logs and `orchestration/g3-official-baseline/summary.md` for the current 30-run official baseline. Current v0 setting is `k = 70%`, 30 official runs, 16 epochs, `C100_COMPILE_MODE=default`.
 
 ## Feasibility note
 
-The `k = 70%` target is mechanically configured and has one compiled 16-epoch seed clearing it at `70.58%`, but it is not yet validated over the official 30-run baseline. The smoke check only proves the code path executes. Run `slurm/official_baseline.sh` to measure whether the baseline clears 70% over 30 runs.
+The `k = 70%` target is validated over the current official 30-run baseline: job `48402781` reached mean official validation accuracy `70.7603%` with mean timed training `25.7734s`. Candidate record evidence must beat that reference with paired same-pod 30-run official validation.
 
 ## Compiled one-seed probes
 

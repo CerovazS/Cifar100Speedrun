@@ -63,14 +63,6 @@ if [[ "$VALIDATION_SOURCE" == "official" && "$RECORD" != "1" ]]; then
   echo "Default paired pilots use VALIDATION_SOURCE=train_dev; official is only for pre-registered record evidence." >&2
   exit 4
 fi
-if [[ "$RECORD" != "1" ]] && command -v squeue >/dev/null 2>&1; then
-  active_official_jobs=$(squeue -h -u "$USER" -o "%j" | grep -Ei 'official|record|g6' || true)
-  if [[ -n "$active_official_jobs" ]]; then
-    echo "Refusing train-dev paired pilot while official/record/G6 job is active:" >&2
-    echo "$active_official_jobs" >&2
-    exit 7
-  fi
-fi
 if [[ -e "$OUT_ROOT" ]]; then
   echo "Refusing to reuse output directory: $OUT_ROOT" >&2
   exit 3
