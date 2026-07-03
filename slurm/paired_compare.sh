@@ -165,8 +165,12 @@ compare_fields = [
     "dev_split_seed",
     "compile",
     "compile_mode",
+    "widths",
+    "blocks",
     "muon_lr",
     "bias_lr",
+    "label_smoothing",
+    "cutout_size",
 ]
 if candidate_env and baseline_config and candidate_config:
     if all(baseline_config.get(field) == candidate_config.get(field) for field in compare_fields):

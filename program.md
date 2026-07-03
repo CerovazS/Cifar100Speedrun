@@ -15,9 +15,9 @@ G5b train-dev-only second batch. G1 controls, G2 interactive smoke, G3 official 
 - `research-orchestrator` T2 Muon mechanics: complete; kill recommendation after dev3 LR pilots.
 - `research-orchestrator` T3 Architecture Pareto: complete; kill narrow/basewidth, keep `shallow122` only as a possible combined follow-up candidate.
 - `scientific-critic` G5 Batch Reviewer: required before any next G5 expansion or finalist promotion.
-- `research-orchestrator` G5b-T4 Shallow recovery: paired train-dev dev3 at 16 epochs using committed architecture knobs.
-- `scientific-implementer` G5b-T5 Cheap regularization knobs: add default-preserving env knobs for label smoothing and cutout before any run.
-- `experiment-architect` G5b-T6 Batch/schedule design: propose a non-redundant dev3 pilot with matched controls and a numeric gate.
+- `research-orchestrator` G5b-T4 Shallow recovery: complete; KILL after paired train-dev dev3.
+- `scientific-implementer` G5b-T5 Cheap regularization knobs: local patch committed, pending remote sync before any run.
+- `experiment-architect` G5b-T6 Batch/schedule design: complete; pending main launch decision after paired wrapper fix is synced.
 - `paper-explorer` Reader: active AirBench / fast-CIFAR source sweep.
 - `paper-explorer` PaperScout: active Muon / optimizer source sweep.
 - `paper-explorer` Scholar: active augmentation / regularization source sweep.
@@ -33,13 +33,13 @@ G5b train-dev-only second batch. G1 controls, G2 interactive smoke, G3 official 
 - [x] Objective completed for first G5 batch: T1/T2 killed; T3 only leaves `shallow122` as a possible combined follow-up, not a finalist.
 - [x] Independent G5 batch audit completed: see `orchestration/g5-batch-audit/summary.md`; verdict blocks dev10, paired train-dev, official validation, and record mode from current evidence.
 - [x] Flywheel logging delegated or ruled out for the first G5 batch: ruled out for now because all first-batch pilots are negative screening evidence and no record/finalist claim exists.
-- [ ] G5b objective completed: pending T4/T5/T6 subagent outputs and critic audit.
+- [ ] G5b objective completed: T4 killed; T5 and T6 remain pending run/audit after remote sync.
 
 ## Immediate Backlog
 
-1. Launch G5b-T4 paired train-dev dev3 only after trace creation: `shallow122` at 16 epochs vs default, `RECORD=0`.
-2. Integrate and audit G5b-T5 default-preserving regularization knobs before any regularization run.
-3. Accept or reject G5b-T6 batch/schedule pilot design; do not launch if it duplicates failed scalar LR/epoch sweeps.
+1. Sync commits through the paired wrapper guard fix to the scratch checkout.
+2. Decide whether to launch G5b-T6 batch `1536` paired dev3; it has a predeclared gate and no code changes.
+3. Design the first G5b-T5 regularization run using only committed knobs; do not launch before remote sync and trace.
 4. If a future train-dev candidate clears a predeclared dev3 gate, run dev10 only after a new critic pass, then paired train-dev before any official finalist nomination.
 5. Keep official validation reserved for pre-registered finalists only.
 
