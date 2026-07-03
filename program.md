@@ -6,7 +6,7 @@ Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Spee
 
 ## Current Phase
 
-G3 current-default official baseline. G1 controls and G2 interactive CINECA smoke are complete at commit `4a59bcf`; broad search and record attempts remain blocked until the 30-run baseline and paired pilot gates complete.
+G4 same-allocation paired timing pilot. G1 controls, G2 interactive CINECA smoke, and G3 current-default official baseline are complete; broad search and record attempts remain blocked until the paired pilot is audited.
 
 ## Subagent Delegation Plan
 
@@ -24,16 +24,16 @@ G3 current-default official baseline. G1 controls and G2 interactive CINECA smok
 - [x] Claim, hypothesis, decision criterion, and metric/evidence recorded before launch: see `program/00-adversarial-framing.md`.
 - [x] Planning artifacts complete for first gate: see `program/02-repo-control.md`, `program/03-assumption-breaker.md`, `program/04-execution-dag.md`, and `program/05-plan-audit.md`.
 - [x] Critical audit completed: Reviewer returned blocked-for-spend verdict; P0 fixes were required before GPU search.
-- [ ] Objective completed: G1 controls and G2 smoke pass; blocked until official baseline, paired pilot, trajectory searches, finalists, and logging complete.
+- [ ] Objective completed: G1 controls, G2 smoke, and G3 baseline pass; blocked until paired pilot, trajectory searches, finalists, and logging complete.
 - [ ] Flywheel logging delegated: not yet; logging starts only after evidence exists. Destination is the `.env` root above.
 
 ## Immediate Backlog
 
-1. Run current-default 30-run official baseline from commit `4a59bcf`.
-2. Audit baseline artifacts and decide whether the 70% target is robust enough.
-3. Run same-allocation paired no-op or tiny-candidate pilot to validate AB/BA timing.
-4. Assign parallel trajectory orchestrators only after G3-G4 controls pass.
-5. Prepare Flywheel logger handoff after baseline evidence exists.
+1. Commit the HF cache cleanup so future SIMP runs no longer inherit YENDRI cache paths.
+2. Run same-allocation paired no-op or tiny-candidate pilot on `train_dev` to validate AB/BA timing.
+3. Audit paired pilot artifacts.
+4. Assign parallel trajectory orchestrators only after G4 controls pass.
+5. Prepare Flywheel logger handoff after baseline and paired-pilot evidence are curated.
 
 ## Active Assumptions And Ambiguities
 

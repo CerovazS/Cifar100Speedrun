@@ -1,0 +1,52 @@
+[env_setup] cifar100 ready (python=Python 3.11.15)
+==> Fri Jul  3 16:04:49 CEST 2026 job=48402781 node=lrdn2988.leonardo.local
+index, name, memory.total [MiB], driver_version
+0, NVIDIA A100-SXM-64GB, 65536 MiB, 535.274.02
+cifar100/train.pt: exists images=(50000, 32, 32, 3) labels=(50000,)
+cifar100/test.pt: exists images=(10000, 32, 32, 3) labels=(10000,)
+mean [0.507075, 0.486549, 0.440918]
+std [0.267334, 0.256438, 0.27615]
+config model=simple_resnet_muon runs=30 epochs=16.0 batch=1024 target=0.7 validation_source=official compile=1 compile_mode=default no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2734  |    skipped  |      skipped  |      50.8295  |
+|       1  |   eval  |     0.9378  |     0.7039  |       1.0000  |      25.7740  |
+Mean val accuracy after 1 runs: 0.703900 | Mean time: 25.773959s|       2  |   eval  |     0.9399  |     0.7049  |       1.0000  |      25.7598  |
+Mean val accuracy after 2 runs: 0.704400 | Mean time: 25.766854s|       3  |   eval  |     0.9379  |     0.7049  |       1.0000  |      25.7552  |
+Mean val accuracy after 3 runs: 0.704567 | Mean time: 25.762971s|       4  |   eval  |     0.9387  |     0.7074  |       1.0000  |      25.7658  |
+Mean val accuracy after 4 runs: 0.705275 | Mean time: 25.763679s|       5  |   eval  |     0.9346  |     0.7018  |       1.0000  |      25.7650  |
+Mean val accuracy after 5 runs: 0.704580 | Mean time: 25.763946s|       6  |   eval  |     0.9391  |     0.7072  |       1.0000  |      25.7695  |
+Mean val accuracy after 6 runs: 0.705017 | Mean time: 25.764879s|       7  |   eval  |     0.9440  |     0.7087  |       1.0000  |      25.7700  |
+Mean val accuracy after 7 runs: 0.705543 | Mean time: 25.765606s|       8  |   eval  |     0.9377  |     0.7080  |       1.0000  |      25.7669  |
+Mean val accuracy after 8 runs: 0.705850 | Mean time: 25.765765s|       9  |   eval  |     0.9375  |     0.7061  |       1.0000  |      25.7790  |
+Mean val accuracy after 9 runs: 0.705878 | Mean time: 25.767233s|      10  |   eval  |     0.9383  |     0.7113  |       1.0000  |      25.7671  |
+Mean val accuracy after 10 runs: 0.706420 | Mean time: 25.767215s|      11  |   eval  |     0.9369  |     0.7044  |       1.0000  |      25.7658  |
+Mean val accuracy after 11 runs: 0.706236 | Mean time: 25.767085s|      12  |   eval  |     0.9409  |     0.7095  |       1.0000  |      25.7976  |
+Mean val accuracy after 12 runs: 0.706508 | Mean time: 25.769631s|      13  |   eval  |     0.9403  |     0.7119  |       1.0000  |      25.7990  |
+Mean val accuracy after 13 runs: 0.706923 | Mean time: 25.771894s|      14  |   eval  |     0.9407  |     0.7055  |       1.0000  |      25.7651  |
+Mean val accuracy after 14 runs: 0.706821 | Mean time: 25.771411s|      15  |   eval  |     0.9392  |     0.7079  |       1.0000  |      25.7977  |
+Mean val accuracy after 15 runs: 0.706893 | Mean time: 25.773166s|      16  |   eval  |     0.9391  |     0.7091  |       1.0000  |      25.7649  |
+Mean val accuracy after 16 runs: 0.707031 | Mean time: 25.772650s|      17  |   eval  |     0.9336  |     0.7129  |       1.0000  |      25.7649  |
+Mean val accuracy after 17 runs: 0.707376 | Mean time: 25.772192s|      18  |   eval  |     0.9370  |     0.7084  |       1.0000  |      25.7673  |
+Mean val accuracy after 18 runs: 0.707433 | Mean time: 25.771923s|      19  |   eval  |     0.9403  |     0.7085  |       1.0000  |      25.8035  |
+Mean val accuracy after 19 runs: 0.707489 | Mean time: 25.773585s|      20  |   eval  |     0.9389  |     0.7103  |       1.0000  |      25.7717  |
+Mean val accuracy after 20 runs: 0.707630 | Mean time: 25.773490s|      21  |   eval  |     0.9381  |     0.7067  |       1.0000  |      25.7695  |
+Mean val accuracy after 21 runs: 0.707586 | Mean time: 25.773299s|      22  |   eval  |     0.9399  |     0.7083  |       1.0000  |      25.7932  |
+Mean val accuracy after 22 runs: 0.707618 | Mean time: 25.774205s|      23  |   eval  |     0.9413  |     0.7092  |       1.0000  |      25.7696  |
+Mean val accuracy after 23 runs: 0.707687 | Mean time: 25.774004s|      24  |   eval  |     0.9399  |     0.7080  |       1.0000  |      25.7661  |
+Mean val accuracy after 24 runs: 0.707700 | Mean time: 25.773675s|      25  |   eval  |     0.9400  |     0.7076  |       1.0000  |      25.7608  |
+Mean val accuracy after 25 runs: 0.707696 | Mean time: 25.773161s|      26  |   eval  |     0.9427  |     0.7064  |       1.0000  |      25.7377  |
+Mean val accuracy after 26 runs: 0.707646 | Mean time: 25.771798s|      27  |   eval  |     0.9388  |     0.7075  |       1.0000  |      25.8009  |
+Mean val accuracy after 27 runs: 0.707641 | Mean time: 25.772877s|      28  |   eval  |     0.9432  |     0.7067  |       1.0000  |      25.7788  |
+Mean val accuracy after 28 runs: 0.707607 | Mean time: 25.773089s|      29  |   eval  |     0.9370  |     0.7095  |       1.0000  |      25.7740  |
+Mean val accuracy after 29 runs: 0.707672 | Mean time: 25.773121s|      30  |   eval  |     0.9398  |     0.7056  |       1.0000  |      25.7804  |
+Mean val accuracy after 30 runs: 0.707603 | Mean time: 25.773363s
+Val accuracies: Mean: 0.707603    Std: 0.002375    Min: 0.701800    Max: 0.712900
+Times (s):      Mean: 25.773363    Std: 0.014814    Min: 25.737730    Max: 25.803492
+Target 0.7000 hit count: 30/30
+runs=30
+val_acc mean=0.707603 sd=0.002416 se=0.000441 target=0.700000 normal_one_sided_p_mean_le_target=6.70621e-67
+time_s mean=25.773360 sd=0.015059 min=25.737700 max=25.803500
+hits=30/30
+==> done Fri Jul  3 16:20:42 CEST 2026
