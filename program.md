@@ -35,13 +35,13 @@ Post-G5b control hardening and redesign pause. G1 controls, G2 interactive smoke
 - [x] Independent G5 batch audit completed: see `orchestration/g5-batch-audit/summary.md`; verdict blocks dev10, paired train-dev, official validation, and record mode from current evidence.
 - [x] Flywheel logging delegated or ruled out for the first G5 batch: ruled out for now because all first-batch pilots are negative screening evidence and no record/finalist claim exists.
 - [x] G5b objective completed: T4 shallow recovery, T5 cutout8, and T6 batch-1536 all killed on train-dev evidence. No candidate is promotable.
-- [ ] Post-G5b control hardening completed: paired wrapper patch and remote G6 quarantine pending verification/commit.
+- [x] Post-G5b control hardening completed: paired wrapper now sanitizes baseline env, validates declared candidate diffs, refuses train-dev pilots while official/record/G6 jobs are active, and the remote G6 script path is quarantined.
 
 ## Immediate Backlog
 
-1. Verify and commit paired-wrapper hardening: sanitized baseline env, declared candidate diff guard, and official/record/G6 active-job refusal.
-2. Verify remote G6 launcher quarantine and keep official validation blocked.
-3. Design the next batch around a more substantive mechanism; current simple compression, scalar LR, shallow architecture, batch-size, and cutout8 paths are killed.
+1. Design the next batch around a more substantive mechanism; current simple compression, scalar LR, shallow architecture, batch-size, and cutout8 paths are killed.
+2. Before any new GPU launch, write a new trace with allowed config differences and train-dev-only gates.
+3. Keep official validation blocked until a named finalist passes train-dev evidence and critic audit.
 4. If a future train-dev candidate clears a predeclared dev3 gate, run dev10 only after a new critic pass, then paired train-dev before any official finalist nomination.
 5. Keep official validation reserved for pre-registered finalists only.
 
