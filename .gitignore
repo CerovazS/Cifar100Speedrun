@@ -1,4 +1,7 @@
 __pycache__/
 *.pyc
+.env
+.venv*/
 logs/
+outputs/
 cifar100-benchmark/cifar100/

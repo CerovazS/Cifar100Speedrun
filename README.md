@@ -1,6 +1,6 @@
 # CIFAR-100 A100 Speedrun Autoresearch Benchmark
 
-Remote path: `/leonardo_work/IscrC_YENDRI/paerle/Cifar100Speedrun`.
+Remote path: `/leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun`.
 
 Goal: train on official CIFAR-100 train images and reach a fixed plain validation accuracy target `k = 70%` on a single A100 in the least training time possible.
 
@@ -42,6 +42,7 @@ For CIFAR-100 std around 0.4-0.6 percentage points, 30 runs gives SE around 0.06
 - `slurm/smoke.sh`: one tiny run to verify the benchmark executes; not evidence for target choice.
 - `slurm/discovery.sh`: target discovery, not run during setup.
 - `slurm/official_baseline.sh`: 30-run official baseline for `k = 70%`.
+- `slurm/paired_compare.sh`: same-allocation per-seed AB/BA baseline/candidate comparison for pilot controls. It defaults to `C100_VALIDATION_SOURCE=train_dev`; `RECORD=1` defaults to `VALIDATION_SOURCE=official RUNS=30` and refuses any other run count. Candidate overrides are passed with `CANDIDATE_ENV`.
 
 ## Commands
 
@@ -49,12 +50,23 @@ Use Cineca account `IscrC_SIMP`. The Slurm scripts refuse to run outside `IscrC_
 
 
 ```bash
-cd /leonardo_work/IscrC_YENDRI/paerle/Cifar100Speedrun
+cd /leonardo_work/IscrC_SIMP/lcerovaz/Cifar100Speedrun
+UV_PROJECT_ENVIRONMENT=/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/envs/venv311 UV_LINK_MODE=copy uv sync --python 3.11
 source env_setup.sh
-python prepare_cifar100.py
+python prepare_cifar100_hf.py
 sbatch slurm/smoke.sh
 # Optional future calibration only: sbatch slurm/discovery.sh
 ```
+
+## Search and record controls
+
+Exploratory search must use the train-derived development split, not the official CIFAR-100 test split. Set `C100_VALIDATION_SOURCE=train_dev` to hold out `C100_DEV_PER_CLASS=50` examples per class from the official train split with fixed `C100_DEV_SPLIT_SEED=20260703`. This mode is for candidate search only and cannot establish a record.
+
+Official record evidence must use the default `C100_VALIDATION_SOURCE=official`, which evaluates the frozen official test split once per pre-registered candidate. A record claim still requires the paired same-pod comparison rule above.
+
+Every serious run should set `C100_OUTPUT_DIR` or use a Slurm wrapper that does so. The trainer writes `config.json`, `metrics.csv`, `summary.json`, `warmup.json`, `repro_metadata.json`, and, when the worktree is dirty, `git_diff.patch` there without changing the timed training boundary or validation semantics. Warmup never evaluates the official validation split and is not written to `metrics.csv`.
+
+`slurm/paired_compare.sh` is currently pilot-grade: it alternates baseline/candidate order per seed and records that order in `paired_order.csv`, but it invokes the trainer separately for each method/seed pair. That is adequate for the G4 same-allocation order-control pilot; a final G6 runner may still need a more efficient pre-registered 30-run implementation after G2-G4 pass.
 
 ## Hard validation rules
 

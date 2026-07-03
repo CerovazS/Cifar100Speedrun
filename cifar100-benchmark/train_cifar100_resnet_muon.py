@@ -12,10 +12,13 @@ BENCHMARK CONTRACT
   and training hyperparameters inside the timed training loop.
 """
 
+import csv
+import hashlib
+import json
 import math
 import os
 import random
-import time
+import subprocess
 from pathlib import Path
 
 import torch
@@ -40,6 +43,24 @@ def load_split(name):
     images = data["images"].to(torch.float16).div_(255.0).permute(0, 3, 1, 2).contiguous(memory_format=torch.channels_last)
     labels = data["labels"].long()
     return images, labels
+
+
+@torch.no_grad()
+def make_train_dev_split(images, labels, dev_per_class=50, split_seed=20260703):
+    generator = torch.Generator(device=labels.device)
+    generator.manual_seed(split_seed)
+    train_parts, dev_parts = [], []
+    for cls in range(100):
+        cls_idx = torch.nonzero(labels == cls, as_tuple=False).flatten()
+        order = torch.randperm(len(cls_idx), generator=generator, device=labels.device)
+        cls_idx = cls_idx[order]
+        dev_parts.append(cls_idx[:dev_per_class])
+        train_parts.append(cls_idx[dev_per_class:])
+    train_idx = torch.cat(train_parts)
+    dev_idx = torch.cat(dev_parts)
+    train_idx = train_idx[torch.randperm(len(train_idx), generator=generator, device=labels.device)]
+    dev_idx = dev_idx[torch.randperm(len(dev_idx), generator=generator, device=labels.device)]
+    return images[train_idx], labels[train_idx], images[dev_idx], labels[dev_idx]
 
 
 @torch.no_grad()
@@ -185,7 +206,85 @@ def reset_model(model):
             module.reset_parameters()
 
 
-def train_once(run_name, seed, model, train_images, train_labels, test_images, test_labels, epochs, batch_size, target):
+def git_sha():
+    return git_output(["git", "rev-parse", "HEAD"])
+
+
+def git_output(args, default="unknown"):
+    try:
+        return subprocess.check_output(args, text=True, stderr=subprocess.DEVNULL).strip()
+    except Exception:
+        return default
+
+
+def safe_env_snapshot():
+    prefixes = ("C100_", "CUDA", "HF_", "HUGGINGFACE_", "NVIDIA", "SLURM_", "TORCH", "TRITON", "UV_", "XDG_")
+    names = {
+        "HF_DATASETS_CACHE",
+        "HF_HOME",
+        "HOSTNAME",
+        "OMP_NUM_THREADS",
+        "PIP_CACHE_DIR",
+        "PYTHONHASHSEED",
+        "PYTHONPATH",
+        "TRANSFORMERS_CACHE",
+        "VIRTUAL_ENV",
+    }
+    sensitive = ("KEY", "PASSWORD", "SECRET", "TOKEN")
+    snapshot = {}
+    for key, value in sorted(os.environ.items()):
+        if key in names or key.startswith(prefixes):
+            snapshot[key] = "<redacted>" if any(marker in key for marker in sensitive) else value
+    return snapshot
+
+
+def gpu_metadata():
+    metadata = {
+        "torch_device_name": torch.cuda.get_device_name(),
+    }
+    try:
+        query = "index,uuid,name,memory.total,driver_version"
+        lines = subprocess.check_output(
+            ["nvidia-smi", f"--query-gpu={query}", "--format=csv,noheader"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip().splitlines()
+        metadata["nvidia_smi"] = [line.strip() for line in lines if line.strip()]
+    except Exception:
+        metadata["nvidia_smi"] = []
+    return metadata
+
+
+def write_repro_metadata(output_dir):
+    repo_root = git_output(["git", "rev-parse", "--show-toplevel"])
+    status = git_output(["git", "status", "--porcelain"], default="")
+    diff = git_output(["git", "diff", "--binary", "HEAD"], default="")
+    diff_path = None
+    diff_sha256 = None
+    if diff:
+        diff_path = "git_diff.patch"
+        patch_path = output_dir / diff_path
+        patch_path.write_text(diff + ("\n" if not diff.endswith("\n") else ""))
+        diff_sha256 = hashlib.sha256(diff.encode()).hexdigest()
+    metadata = {
+        "git": {
+            "repo_root": repo_root,
+            "repo_url": git_output(["git", "remote", "get-url", "origin"]),
+            "branch": git_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]),
+            "commit_sha": git_sha(),
+            "dirty": bool(status.strip()),
+            "status_porcelain": status.splitlines(),
+            "diff_path": diff_path,
+            "diff_sha256": diff_sha256,
+        },
+        "environment": safe_env_snapshot(),
+        "gpu": gpu_metadata(),
+    }
+    write_json(output_dir / "repro_metadata.json", metadata)
+    return metadata
+
+
+def train_once(run_name, seed, model, train_images, train_labels, test_images, test_labels, epochs, batch_size, target, evaluate_validation=True):
     seed_all(seed)
     reset_model(model)
     muon_params = [p for p in model.parameters() if p.ndim >= 2]
@@ -220,11 +319,47 @@ def train_once(run_name, seed, model, train_images, train_labels, test_images, t
     # Timed training ends here. Validation remains an untimed correctness gate.
     ender.record(); torch.cuda.synchronize()
     time_seconds = starter.elapsed_time(ender) * 1e-3
-    val_acc = evaluate(model, test_images, test_labels)
     train_acc = evaluate(model, train_images[:10000], train_labels[:10000])
-    hit = float(val_acc >= target)
-    print(f"|  {str(run_name).rjust(6)}  |   eval  |     {train_acc:0.4f}  |   {val_acc:0.4f}  |       {hit:0.4f}  |      {time_seconds:0.4f}  |", flush=True)
-    return val_acc, time_seconds
+    if evaluate_validation:
+        val_acc = evaluate(model, test_images, test_labels)
+        hit = float(val_acc >= target)
+        val_text = f"{val_acc:0.4f}"
+        hit_text = f"{hit:0.4f}"
+    else:
+        val_acc = None
+        hit = None
+        val_text = "skipped"
+        hit_text = "skipped"
+    print(f"|  {str(run_name).rjust(6)}  |   eval  |     {train_acc:0.4f}  |   {val_text:>8}  |     {hit_text:>8}  |      {time_seconds:0.4f}  |", flush=True)
+    return {
+        "run": run_name,
+        "seed": seed,
+        "train_acc": train_acc,
+        "val_acc": val_acc,
+        "target_hit": hit,
+        "time_seconds": time_seconds,
+        "epochs": epochs,
+        "batch_size": batch_size,
+        "steps_per_epoch": steps_per_epoch,
+        "total_steps": total_steps,
+        "validation_evaluated": evaluate_validation,
+    }
+
+
+def write_json(path, payload):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+
+
+def append_metrics(path, row):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fields = ["run", "seed", "train_acc", "val_acc", "target_hit", "time_seconds", "epochs", "batch_size", "steps_per_epoch", "total_steps"]
+    exists = path.exists()
+    with path.open("a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        if not exists:
+            writer.writeheader()
+        writer.writerow({field: row[field] for field in fields})
 
 
 def main():
@@ -234,10 +369,21 @@ def main():
     target = float(os.getenv("C100_TARGET", "0.70"))
     seed_base = int(os.getenv("C100_SEED_BASE", "880000"))
     sleep_cycles = int(os.getenv("C100_SLEEP_CYCLES", "1000000000"))
+    validation_source = os.getenv("C100_VALIDATION_SOURCE", "official")
+    dev_per_class = int(os.getenv("C100_DEV_PER_CLASS", "50"))
+    dev_split_seed = int(os.getenv("C100_DEV_SPLIT_SEED", "20260703"))
+    output_dir_raw = os.getenv("C100_OUTPUT_DIR", "")
+    output_dir = Path(output_dir_raw) if output_dir_raw else None
     train_images, train_labels = load_split("train")
-    test_images, test_labels = load_split("test")
+    if validation_source == "official":
+        eval_images, eval_labels = load_split("test")
+    elif validation_source == "train_dev":
+        train_images, train_labels, eval_images, eval_labels = make_train_dev_split(train_images, train_labels, dev_per_class, dev_split_seed)
+    else:
+        raise ValueError(f"unknown C100_VALIDATION_SOURCE={validation_source!r}")
     compile_enabled = os.getenv("C100_COMPILE", "1") != "0"
     compile_mode = os.getenv("C100_COMPILE_MODE", "default")
+    compile_mode_label = compile_mode if compile_enabled else "off"
     model = SimpleResNet().cuda().to(torch.float16).to(memory_format=torch.channels_last)
     # Compile is infrastructure, not a record surface. It is paid in warmup and
     # must not be tuned as a benchmark trick; use it only to make the fixed
@@ -247,17 +393,49 @@ def main():
             model.compile()
         else:
             model.compile(mode=compile_mode)
-    print(f"config model=simple_resnet_muon runs={runs} epochs={epochs} batch={batch_size} target={target} compile={int(compile_enabled)} compile_mode={compile_mode if compile_enabled else off} no_tta=1")
+    config = {
+        "model": "simple_resnet_muon",
+        "runs": runs,
+        "epochs": epochs,
+        "batch_size": batch_size,
+        "target": target,
+        "seed_base": seed_base,
+        "sleep_cycles": sleep_cycles,
+        "validation_source": validation_source,
+        "dev_per_class": dev_per_class if validation_source == "train_dev" else None,
+        "dev_split_seed": dev_split_seed if validation_source == "train_dev" else None,
+        "train_examples": len(train_images),
+        "eval_examples": len(eval_images),
+        "compile": compile_enabled,
+        "compile_mode": compile_mode_label,
+        "muon_lr": float(os.getenv("C100_MUON_LR", "0.035")),
+        "bias_lr": float(os.getenv("C100_BIAS_LR", "0.02")),
+        "no_tta": True,
+        "git_sha": git_sha(),
+        "torch_version": torch.__version__,
+        "torch_cuda_version": torch.version.cuda,
+        "device_name": torch.cuda.get_device_name(),
+    }
+    if output_dir is not None:
+        write_json(output_dir / "config.json", config)
+        write_repro_metadata(output_dir)
+    print(f"config model=simple_resnet_muon runs={runs} epochs={epochs} batch={batch_size} target={target} validation_source={validation_source} compile={int(compile_enabled)} compile_mode={compile_mode_label} no_tta=1")
     print("---------------------------------------------------------------------------------")
     print("|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |")
     print("---------------------------------------------------------------------------------")
-    train_once("warmup", seed_base - 1, model, train_images, train_labels, test_images, test_labels, min(1.0, epochs), batch_size, target)
+    warmup = train_once("warmup", seed_base - 1, model, train_images, train_labels, eval_images, eval_labels, min(1.0, epochs), batch_size, target, evaluate_validation=False)
+    if output_dir is not None:
+        write_json(output_dir / "warmup.json", warmup)
     vals, times = [], []
     for run in range(runs):
         torch.cuda.empty_cache(); torch.cuda.synchronize()
         if sleep_cycles > 0:
             torch.cuda._sleep(sleep_cycles)
-        val, sec = train_once(run + 1, seed_base + run, model, train_images, train_labels, test_images, test_labels, epochs, batch_size, target)
+        row = train_once(run + 1, seed_base + run, model, train_images, train_labels, eval_images, eval_labels, epochs, batch_size, target)
+        if output_dir is not None:
+            append_metrics(output_dir / "metrics.csv", row)
+        val = row["val_acc"]
+        sec = row["time_seconds"]
         vals.append(val); times.append(sec)
         print(f"Mean val accuracy after {run + 1} runs: {sum(vals) / len(vals):.6f} | Mean time: {sum(times) / len(times):.6f}s", end="\r", flush=True)
     print()
@@ -265,6 +443,21 @@ def main():
     print("Val accuracies: Mean: %.6f    Std: %.6f    Min: %.6f    Max: %.6f" % (v.mean(), v.std(unbiased=False), v.min(), v.max()))
     print("Times (s):      Mean: %.6f    Std: %.6f    Min: %.6f    Max: %.6f" % (t.mean(), t.std(unbiased=False), t.min(), t.max()))
     print("Target %.4f hit count: %d/%d" % (target, int((v >= target).sum().item()), runs))
+    if output_dir is not None:
+        summary = {
+            "runs": runs,
+            "val_acc_mean": float(v.mean().item()),
+            "val_acc_std": float(v.std(unbiased=False).item()),
+            "val_acc_min": float(v.min().item()),
+            "val_acc_max": float(v.max().item()),
+            "time_seconds_mean": float(t.mean().item()),
+            "time_seconds_std": float(t.std(unbiased=False).item()),
+            "time_seconds_min": float(t.min().item()),
+            "time_seconds_max": float(t.max().item()),
+            "target": target,
+            "target_hit_count": int((v >= target).sum().item()),
+        }
+        write_json(output_dir / "summary.json", summary)
 
 
 if __name__ == "__main__":

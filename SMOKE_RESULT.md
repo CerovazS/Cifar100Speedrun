@@ -18,4 +18,4 @@ config model=simple_resnet_muon runs=1 epochs=0.05 batch=1024 target=0.01 no_tta
 
 Conclusion: data staging, model construction, Muon step, training loop, plain no-TTA validation, timer-before-validation behavior, and Slurm `IscrC_SIMP` account guard all execute.
 
-Important: this is a smoke check only. It does not estimate the official 50-run baseline mean or justify changing the chosen target.
+Important: this is a smoke check only. It does not estimate the official 30-run baseline mean or justify changing the chosen target.
