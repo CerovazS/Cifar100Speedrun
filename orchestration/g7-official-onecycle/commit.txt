@@ -1,0 +1,6 @@
+repo_url=https://github.com/MarioPaerle/Cifar100Speedrun
+branch=codex/cifar100-speedrun-control
+run_code_commit=2c3edb798dc27d512109a7c49eb8ede82b84c023
+local_source_commit_before_remote_git_am=b10c50c52ee0bc54f9b9cec609be85384ad6c6ba
+run_id=g7official_onecycle_default_20260703T203139Z
+slurm_job_id=48439897

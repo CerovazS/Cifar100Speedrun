@@ -1,0 +1,313 @@
+{
+  "candidate_env": "C100_EPOCHS=14 C100_LR_SCHEDULE=onecycle C100_ONECYCLE_PCT_UP=0.30 C100_ONECYCLE_DIV_FACTOR=10.0",
+  "counterbalance": "per-seed alternating AB/BA; pilot-grade, with one trainer invocation per method per seed",
+  "mean_time_delta": -3.4154520833333337,
+  "mean_time_ratio": 0.8708679929386697,
+  "mean_val_acc_delta": 0.005000000000000001,
+  "order_file": "paired_order.csv",
+  "paired_seeds": 30,
+  "pairs": [
+    {
+      "baseline_time": 26.427509765625,
+      "baseline_val_acc": 0.7039,
+      "candidate_time": 23.08637890625,
+      "candidate_val_acc": 0.7096,
+      "order": "baseline/candidate",
+      "seed": 880000,
+      "time_ratio": 0.8735737536753878,
+      "val_acc_delta": 0.005700000000000038
+    },
+    {
+      "baseline_time": 26.271814453125,
+      "baseline_val_acc": 0.7053,
+      "candidate_time": 23.100998046875002,
+      "candidate_val_acc": 0.716,
+      "order": "candidate/baseline",
+      "seed": 880001,
+      "time_ratio": 0.879307292920043,
+      "val_acc_delta": 0.010699999999999932
+    },
+    {
+      "baseline_time": 26.31859765625,
+      "baseline_val_acc": 0.7057,
+      "candidate_time": 23.082328125,
+      "candidate_val_acc": 0.7115,
+      "order": "baseline/candidate",
+      "seed": 880002,
+      "time_ratio": 0.8770348795357846,
+      "val_acc_delta": 0.005800000000000027
+    },
+    {
+      "baseline_time": 26.40467578125,
+      "baseline_val_acc": 0.704,
+      "candidate_time": 23.049767578125,
+      "candidate_val_acc": 0.7133,
+      "order": "candidate/baseline",
+      "seed": 880003,
+      "time_ratio": 0.8729426473205429,
+      "val_acc_delta": 0.009300000000000086
+    },
+    {
+      "baseline_time": 26.256130859375002,
+      "baseline_val_acc": 0.7018,
+      "candidate_time": 22.99867578125,
+      "candidate_val_acc": 0.7129,
+      "order": "baseline/candidate",
+      "seed": 880004,
+      "time_ratio": 0.8759354493024285,
+      "val_acc_delta": 0.011099999999999999
+    },
+    {
+      "baseline_time": 26.29665234375,
+      "baseline_val_acc": 0.7118,
+      "candidate_time": 23.118505859375002,
+      "candidate_val_acc": 0.7162,
+      "order": "candidate/baseline",
+      "seed": 880005,
+      "time_ratio": 0.8791425447303995,
+      "val_acc_delta": 0.0043999999999999595
+    },
+    {
+      "baseline_time": 26.37069140625,
+      "baseline_val_acc": 0.7087,
+      "candidate_time": 22.650193359375,
+      "candidate_val_acc": 0.7126,
+      "order": "baseline/candidate",
+      "seed": 880006,
+      "time_ratio": 0.8589154152403747,
+      "val_acc_delta": 0.0039000000000000146
+    },
+    {
+      "baseline_time": 25.80709765625,
+      "baseline_val_acc": 0.7123,
+      "candidate_time": 22.6374140625,
+      "candidate_val_acc": 0.7132,
+      "order": "candidate/baseline",
+      "seed": 880007,
+      "time_ratio": 0.8771778354943233,
+      "val_acc_delta": 0.0008999999999999009
+    },
+    {
+      "baseline_time": 25.837025390625,
+      "baseline_val_acc": 0.7059,
+      "candidate_time": 22.589517578125,
+      "candidate_val_acc": 0.7155,
+      "order": "baseline/candidate",
+      "seed": 880008,
+      "time_ratio": 0.8743079838564403,
+      "val_acc_delta": 0.009600000000000053
+    },
+    {
+      "baseline_time": 25.79355859375,
+      "baseline_val_acc": 0.7098,
+      "candidate_time": 22.630119140625002,
+      "candidate_val_acc": 0.7086,
+      "order": "candidate/baseline",
+      "seed": 880009,
+      "time_ratio": 0.877355447421996,
+      "val_acc_delta": -0.0011999999999999789
+    },
+    {
+      "baseline_time": 26.20094140625,
+      "baseline_val_acc": 0.7058,
+      "candidate_time": 22.90694921875,
+      "candidate_val_acc": 0.7105,
+      "order": "baseline/candidate",
+      "seed": 880010,
+      "time_ratio": 0.8742796246735529,
+      "val_acc_delta": 0.0047000000000000375
+    },
+    {
+      "baseline_time": 26.059576171875,
+      "baseline_val_acc": 0.7122,
+      "candidate_time": 22.8524375,
+      "candidate_val_acc": 0.7134,
+      "order": "candidate/baseline",
+      "seed": 880011,
+      "time_ratio": 0.8769305129629725,
+      "val_acc_delta": 0.0011999999999999789
+    },
+    {
+      "baseline_time": 26.202628906250002,
+      "baseline_val_acc": 0.7113,
+      "candidate_time": 22.877037109375,
+      "candidate_val_acc": 0.7118,
+      "order": "baseline/candidate",
+      "seed": 880012,
+      "time_ratio": 0.8730817503551422,
+      "val_acc_delta": 0.0004999999999999449
+    },
+    {
+      "baseline_time": 26.2488046875,
+      "baseline_val_acc": 0.7081,
+      "candidate_time": 22.85407421875,
+      "candidate_val_acc": 0.7164,
+      "order": "candidate/baseline",
+      "seed": 880013,
+      "time_ratio": 0.8706710454374856,
+      "val_acc_delta": 0.008300000000000085
+    },
+    {
+      "baseline_time": 26.12238671875,
+      "baseline_val_acc": 0.71,
+      "candidate_time": 22.866396484375,
+      "candidate_val_acc": 0.7115,
+      "order": "baseline/candidate",
+      "seed": 880014,
+      "time_ratio": 0.8753563267617529,
+      "val_acc_delta": 0.0015000000000000568
+    },
+    {
+      "baseline_time": 26.106820312500002,
+      "baseline_val_acc": 0.7151,
+      "candidate_time": 22.9879140625,
+      "candidate_val_acc": 0.7133,
+      "order": "candidate/baseline",
+      "seed": 880015,
+      "time_ratio": 0.8805328947506234,
+      "val_acc_delta": -0.0017999999999999128
+    },
+    {
+      "baseline_time": 30.2213515625,
+      "baseline_val_acc": 0.7063,
+      "candidate_time": 22.81248828125,
+      "candidate_val_acc": 0.7138,
+      "order": "baseline/candidate",
+      "seed": 880016,
+      "time_ratio": 0.7548467259669734,
+      "val_acc_delta": 0.007499999999999951
+    },
+    {
+      "baseline_time": 26.092787109375,
+      "baseline_val_acc": 0.7084,
+      "candidate_time": 22.97437109375,
+      "candidate_val_acc": 0.7172,
+      "order": "candidate/baseline",
+      "seed": 880017,
+      "time_ratio": 0.8804874311604464,
+      "val_acc_delta": 0.008799999999999919
+    },
+    {
+      "baseline_time": 26.236234375000002,
+      "baseline_val_acc": 0.7099,
+      "candidate_time": 22.730572265625,
+      "candidate_val_acc": 0.714,
+      "order": "baseline/candidate",
+      "seed": 880018,
+      "time_ratio": 0.8663808967678883,
+      "val_acc_delta": 0.0040999999999999925
+    },
+    {
+      "baseline_time": 25.971654296875002,
+      "baseline_val_acc": 0.7064,
+      "candidate_time": 22.735376953125,
+      "candidate_val_acc": 0.7156,
+      "order": "candidate/baseline",
+      "seed": 880019,
+      "time_ratio": 0.8753919443576068,
+      "val_acc_delta": 0.009199999999999986
+    },
+    {
+      "baseline_time": 26.251335937500002,
+      "baseline_val_acc": 0.7061,
+      "candidate_time": 22.931599609375,
+      "candidate_val_acc": 0.7093,
+      "order": "baseline/candidate",
+      "seed": 880020,
+      "time_ratio": 0.8735402900626187,
+      "val_acc_delta": 0.0032000000000000917
+    },
+    {
+      "baseline_time": 26.178125,
+      "baseline_val_acc": 0.7083,
+      "candidate_time": 23.003833984375,
+      "candidate_val_acc": 0.7117,
+      "order": "candidate/baseline",
+      "seed": 880021,
+      "time_ratio": 0.8787426137041899,
+      "val_acc_delta": 0.0033999999999999586
+    },
+    {
+      "baseline_time": 26.23996875,
+      "baseline_val_acc": 0.7116,
+      "candidate_time": 22.98050390625,
+      "candidate_val_acc": 0.711,
+      "order": "baseline/candidate",
+      "seed": 880022,
+      "time_ratio": 0.8757824418617115,
+      "val_acc_delta": -0.0006000000000000449
+    },
+    {
+      "baseline_time": 26.3522421875,
+      "baseline_val_acc": 0.7109,
+      "candidate_time": 22.928773437500002,
+      "candidate_val_acc": 0.7139,
+      "order": "candidate/baseline",
+      "seed": 880023,
+      "time_ratio": 0.8700881418119367,
+      "val_acc_delta": 0.0030000000000000027
+    },
+    {
+      "baseline_time": 26.1989453125,
+      "baseline_val_acc": 0.7098,
+      "candidate_time": 22.975759765625,
+      "candidate_val_acc": 0.7158,
+      "order": "baseline/candidate",
+      "seed": 880024,
+      "time_ratio": 0.8769726983880851,
+      "val_acc_delta": 0.006000000000000005
+    },
+    {
+      "baseline_time": 26.269044921875,
+      "baseline_val_acc": 0.7114,
+      "candidate_time": 22.869314453125,
+      "candidate_val_acc": 0.7141,
+      "order": "candidate/baseline",
+      "seed": 880025,
+      "time_ratio": 0.8705803549820365,
+      "val_acc_delta": 0.0026999999999999247
+    },
+    {
+      "baseline_time": 26.30995703125,
+      "baseline_val_acc": 0.706,
+      "candidate_time": 22.92709765625,
+      "candidate_val_acc": 0.7159,
+      "order": "baseline/candidate",
+      "seed": 880026,
+      "time_ratio": 0.8714228468339206,
+      "val_acc_delta": 0.00990000000000002
+    },
+    {
+      "baseline_time": 26.150974609375,
+      "baseline_val_acc": 0.7071,
+      "candidate_time": 22.99196484375,
+      "candidate_val_acc": 0.7131,
+      "order": "candidate/baseline",
+      "seed": 880027,
+      "time_ratio": 0.8792010694510594,
+      "val_acc_delta": 0.006000000000000005
+    },
+    {
+      "baseline_time": 26.207904296875,
+      "baseline_val_acc": 0.7095,
+      "candidate_time": 23.03866796875,
+      "candidate_val_acc": 0.7118,
+      "order": "baseline/candidate",
+      "seed": 880028,
+      "time_ratio": 0.879073263843424,
+      "val_acc_delta": 0.0022999999999999687
+    },
+    {
+      "baseline_time": 26.396138671875,
+      "baseline_val_acc": 0.7056,
+      "candidate_time": 23.148982421875,
+      "candidate_val_acc": 0.7155,
+      "order": "candidate/baseline",
+      "seed": 880029,
+      "time_ratio": 0.8769836645289398,
+      "val_acc_delta": 0.00990000000000002
+    }
+  ],
+  "record_mode": true,
+  "validation_source": "official"
+}

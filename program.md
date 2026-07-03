@@ -6,7 +6,7 @@ Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Spee
 
 ## Current Phase
 
-Validation-policy reset and next workstream design. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, and G5b train-dev search are complete. The repo contract permits and requires official validation for pre-registered record evidence: `RECORD=1`, `VALIDATION_SOURCE=official`, `RUNS=30`, and `C100_PREP_SPLITS=train,test`. Exploratory search remains `train_dev`, but compliant official workstream runs must not be interrupted merely because other workstreams are active.
+Official finalist result audit and logging handoff. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, G5b train-dev search, and G7-T4 capacity screens are complete. G7-T2 one-cycle passed dev10 train-dev and produced one official 30-run paired candidate result. The repo contract permits and requires official validation for pre-registered record evidence: `RECORD=1`, `VALIDATION_SOURCE=official`, `RUNS=30`, and `C100_PREP_SPLITS=train,test`. Exploratory search remains `train_dev`, but compliant official workstream runs must not be interrupted merely because other workstreams are active.
 
 ## Subagent Delegation Plan
 
@@ -40,16 +40,14 @@ Validation-policy reset and next workstream design. G1 controls, G2 interactive 
 - [x] G7 critical audit completed for T4 train-dev dev3 only: conditional pass; no official/finalist launch is approved yet.
 - [x] G7-T4 capacity objective completed: three train-dev paired candidates all killed; see `orchestration/g7-t4-capacity/result.md`.
 - [x] G7-T2 schedule dev3/dev10 completed: one-cycle default promoted to official/finalist audit pending result critic; high-LR killed. See `orchestration/g7-t2-schedule/result.md`.
-- [ ] G7 official/finalist objective completed: pre-registration, critic pass, official 30-run paired evidence, and logging still pending.
+- [x] G7 official/finalist objective completed: pre-registration, official 30-run paired evidence, and independent result critic are complete. See `orchestration/g7-official-onecycle/result.md`.
 - [ ] Flywheel logging delegated: logger must use `$flywheel-log` for any record, finalist, or synthesis node; negative local screens may be logged only after curation.
 
 ## Immediate Backlog
 
-1. Run result critic on G7-T2 dev10 and pre-register official `onecycle-default` only if audit passes.
-2. Decide whether `slurm/paired_compare.sh` is acceptable for official 30-run walltime or needs an efficient record runner.
-3. Launch official 30-run workstream only with `RECORD=1`, `RUNS=30`, `VALIDATION_SOURCE=official`, and split prep `train,test`.
-4. Implement Muon mechanics knobs only after the official schedule path is resolved or parallel capacity is available.
-5. Delegate Flywheel logging after official/finalist evidence or explicitly log negative train-dev screens as local-only if no official candidate survives.
+1. Delegate Flywheel logging with `$flywheel-log` for the official one-cycle record candidate.
+2. After logging handoff, decide whether to allocate parallel orchestrators to Muon mechanics, AirBench-style train-only transplant, or combined schedule/capacity variants.
+3. Keep exploratory follow-ups on `train_dev`; use official validation only for pre-registered finalist/record evidence.
 
 ## Active Assumptions And Ambiguities
 
