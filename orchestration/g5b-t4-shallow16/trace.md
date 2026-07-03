@@ -35,47 +35,53 @@ CANDIDATE_ENV='C100_BLOCKS=1,2,2' \
 sbatch slurm/paired_compare.sh
 ```
 
-## Result
+## Submission
 
-SLURM job `48411710` ran all six trainer invocations, then failed in paired post-processing because the wrapper's candidate guard did not yet include architecture fields (`widths`, `blocks`) in its tracked comparison list. The metrics are complete and sufficient for a conservative kill decision, but the job is recorded as `FAILED`, not as a clean successful pilot.
-
-Scheduler accounting:
-
-```text
-48411710|c100-paired|FAILED|1:0|00:04:31|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1
-```
-
-The prep stage printed only `cifar100/train.pt`; it did not print or inspect `test.pt`.
+- Job id: `48411710`
+- Node: `lrdn0263`
+- Submitted once from the scratch checkout root.
+- Stdout prep confirmed train-only data preparation: `cifar100/train.pt: exists ...`; no `test.pt` prep line appeared.
+- SLURM state: `FAILED`, exit code `1:0`, elapsed `00:04:31`.
+- Failure cause: post-run wrapper guard printed `CANDIDATE_ENV was set, but candidate config matches baseline on all tracked training fields.` The completed configs show this is a wrapper validation false alarm for architecture-only changes: baseline `blocks=[2,2,2]`, candidate `blocks=[1,2,2]`, while the guard's tracked fields omit architecture fields.
 
 ## Metrics
 
-| Metric | Baseline | Candidate `blocks=1,2,2` |
-| --- | ---: | ---: |
-| Mean train-dev accuracy | `0.696733` | `0.691933` |
-| Target hits | `0/3` | `0/3` |
-| Mean timed training | `23.374349s` | `19.199722s` |
-| Mean candidate/baseline time ratio | | `0.821418` |
-| Mean accuracy delta | | `-0.004800` |
+| seed | order | baseline acc | candidate acc | acc delta | baseline time s | candidate time s | time ratio |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 880000 | baseline/candidate | 0.6946 | 0.6886 | -0.0060 | 23.1739 | 19.1409 | 0.8260 |
+| 880001 | candidate/baseline | 0.6970 | 0.6940 | -0.0030 | 23.4279 | 19.1470 | 0.8173 |
+| 880002 | baseline/candidate | 0.6986 | 0.6932 | -0.0054 | 23.5212 | 19.3112 | 0.8210 |
 
-Per-seed paired results:
+| metric | baseline | candidate | gate |
+| --- | ---: | ---: | ---: |
+| mean train-dev acc | 0.696733 | 0.691933 | candidate >= 0.697 |
+| mean time s | 23.374349 | 19.199722 | lower is better |
+| paired mean time ratio | 1.000000 | 0.821418 | candidate <= 0.900 |
+| mean acc delta | 0.000000 | -0.004800 | higher is better |
+| target hits | 0/3 | 0/3 | none required for this gate |
 
-| Seed | Baseline acc | Candidate acc | Acc delta | Baseline time | Candidate time | Time ratio |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `880000` | `0.6946` | `0.6886` | `-0.0060` | `23.173885s` | `19.140896s` | `0.825968` |
-| `880001` | `0.6970` | `0.6940` | `-0.0030` | `23.427930s` | `19.147023s` | `0.817273` |
-| `880002` | `0.6986` | `0.6932` | `-0.0054` | `23.521232s` | `19.311246s` | `0.821013` |
+## Recommendation
 
-## Decision
+KILL. The candidate passes the speed gate but fails the predeclared accuracy gate: `0.691933 < 0.697`. Because the decision criterion requires both gates, this should not expand to dev10, official validation, or record mode.
 
-KILL `shallow122` recovery as tested. The candidate passes the speed gate (`0.821418 <= 0.90`) but fails the accuracy gate (`0.691933 < 0.697`) and has `0/3` target hits. Do not expand to dev10, paired promotion, official validation, or record mode.
+## Remote Artifacts
+
+- Run root: `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun/outputs/cifar100_speedrun/g5b_t4_shallow16_20260703_1728_d765cc7`
+- Stdout: `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun/logs/paired-48411710.out`
+- Stderr: `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun/logs/paired-48411710.err`
+- Local mirror: `orchestration/g5b-t4-shallow16/remote-artifacts/g5b_t4_shallow16_20260703_1728_d765cc7/`
+- Curated metrics: `orchestration/g5b-t4-shallow16/metrics.csv`
+- Missing expected wrapper summary: `paired_summary.json` was not written because the post-run guard exited with status 1.
+
+## Accounting
+
+```text
+JobID|JobName|Partition|Account|State|ExitCode|Elapsed|AllocTRES|MaxRSS|NodeList
+48411710|c100-paired|boost_usr_prod|iscrc_simp|FAILED|1:0|00:04:31|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1||lrdn0263
+48411710.batch|batch||iscrc_simp|FAILED|1:0|00:04:31|cpu=8,gres/gpu=1,mem=64G,node=1|1631132K|lrdn0263
+48411710.extern|extern||iscrc_simp|COMPLETED|0:0|00:04:31|billing=8,cpu=8,gres/gpu=1,mem=64G,node=1|8K|lrdn0263
+```
 
 ## Corrective Action
 
 Patch `slurm/paired_compare.sh` before the next paired job so candidate-vs-baseline guard fields include `widths`, `blocks`, `label_smoothing`, and `cutout_size`.
-
-## Evidence Paths
-
-- Remote output root: `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun/outputs/cifar100_speedrun/g5b_t4_shallow16_20260703_1728_d765cc7/`
-- Local mirror: `orchestration/g5b-t4-shallow16/remote-artifacts/g5b_t4_shallow16_20260703_1728_d765cc7/`
-- Logs: `orchestration/g5b-t4-shallow16/paired-48411710.out`, `orchestration/g5b-t4-shallow16/paired-48411710.err`
-- Accounting: `orchestration/g5b-t4-shallow16/sacct-48411710.txt`
