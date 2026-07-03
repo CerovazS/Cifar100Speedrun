@@ -6,7 +6,7 @@ Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Spee
 
 ## Current Phase
 
-G4 same-allocation paired timing pilot. G1 controls, G2 interactive CINECA smoke, and G3 current-default official baseline are complete; broad search and record attempts remain blocked until the paired pilot is audited.
+G5 train-dev trajectory search. G1 controls, G2 interactive smoke, G3 official baseline, and G4 paired no-op pilot are complete; official record attempts remain blocked until finalists are pre-registered, audited, and run with `RECORD=1` over exactly 30 paired official seeds.
 
 ## Subagent Delegation Plan
 
@@ -24,16 +24,16 @@ G4 same-allocation paired timing pilot. G1 controls, G2 interactive CINECA smoke
 - [x] Claim, hypothesis, decision criterion, and metric/evidence recorded before launch: see `program/00-adversarial-framing.md`.
 - [x] Planning artifacts complete for first gate: see `program/02-repo-control.md`, `program/03-assumption-breaker.md`, `program/04-execution-dag.md`, and `program/05-plan-audit.md`.
 - [x] Critical audit completed: Reviewer returned blocked-for-spend verdict; P0 fixes were required before GPU search.
-- [ ] Objective completed: G1 controls, G2 smoke, and G3 baseline pass; blocked until paired pilot, trajectory searches, finalists, and logging complete.
+- [ ] Objective completed: G1-G4 gates pass; blocked until trajectory searches, finalists, official paired record evidence, and logging complete.
 - [ ] Flywheel logging delegated: not yet; logging starts only after evidence exists. Destination is the `.env` root above.
 
 ## Immediate Backlog
 
-1. Commit the HF cache cleanup so future SIMP runs no longer inherit YENDRI cache paths.
-2. Run same-allocation paired no-op or tiny-candidate pilot on `train_dev` to validate AB/BA timing.
-3. Audit paired pilot artifacts.
-4. Assign parallel trajectory orchestrators only after G4 controls pass.
-5. Prepare Flywheel logger handoff after baseline and paired-pilot evidence are curated.
+1. Assign parallel train-dev trajectory orchestrators with disjoint write scopes.
+2. Each trajectory must start with dev pilots only, use unique run ids, and return kill/expand evidence.
+3. Audit each trajectory before combining or promoting a finalist.
+4. Prepare logger handoff for G2-G4 while searches run.
+5. Keep official validation reserved for pre-registered finalists only.
 
 ## Active Assumptions And Ambiguities
 
