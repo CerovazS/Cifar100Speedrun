@@ -6,7 +6,7 @@ Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Spee
 
 ## Current Phase
 
-G8-B `ns3_mom93` dev10 train-dev follow-up is active. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, G5b train-dev search, and G7-T4 capacity screens are complete. G7-T2 one-cycle passed official evidence and is logged to Flywheel. G8-A `13ep-onecycle-longwarm` passed dev10 train-dev, completed official 30-run evidence, and is logged to Flywheel node `c184a66e-6cdd-4b6b-9c23-197b0b58dd47`. The active G8-B follow-up is exploratory only: `RECORD=0`, `VALIDATION_SOURCE=train_dev`, `RUNS=10`, `C100_DEV_PER_CLASS=50`, `C100_DEV_SPLIT_SEED=20260703`, unique `RUN_ID=g8b_ns3_mom93_longwarm_dev10_20260704T000009Z`, no official validation, no validation path edits, no TTA/adaptation, and no output directory reuse. Flywheel and Linear mutation are explicitly out of scope.
+G8-B `ns3_mom93` official clean-checkout comparison is blocked during collection. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, G5b train-dev search, G7-T4 capacity screens, G7-T2 official one-cycle, G8-A official `13ep-onecycle-longwarm`, and G8-B `ns3_mom93` train-dev dev10 are complete. The official paired 30-run comparison was pre-registered and launched from a clean Leonardo checkout at commit `4ba08a7b3fea1652411a3adcabddc33fb2821ffe`: `RECORD=1`, `VALIDATION_SOURCE=official`, `RUNS=30`, `EPOCHS=13`, `BASE_SEED=894000`, unique `RUN_ID=g8b_ns3_mom93_official_20260704T003556Z`, no validation path edits, no TTA/adaptation, no dirty execution checkout, and no output directory reuse. Job `48463506` was observed running on `lrdn0042`, but final state and artifacts are unavailable until Leonardo SSH authentication is restored. Flywheel and Linear mutation are explicitly out of scope until artifacts are collected and independently critiqued.
 
 ## Subagent Delegation Plan
 
@@ -27,6 +27,8 @@ G8-B `ns3_mom93` dev10 train-dev follow-up is active. G1 controls, G2 interactiv
 - Main orchestrator G8-B Muon Mechanics Train-Dev Pilot: complete; synced bounded mechanics knobs to Leonardo, ran three paired train-dev dev3 pilots, babysat jobs, pulled evidence, and made promote/hold/kill decision without Flywheel mutation.
 - Main orchestrator G8-B `ns3_mom93` Dev10 Follow-up: active; sync committed launch files, run remote preflight, submit one paired train-dev dev10 job, babysit to completion/failure, mirror artifacts under `orchestration/g8-b-muon/runtime-dev10-20260704T000009Z/`, recompute metrics, and recommend promote/hold/kill.
 - `scientific-critic` G8-B Pre-Launch/Result Auditor: active; read-only audit of launch constraints and final evidence.
+- Main orchestrator G8-B `ns3_mom93` Official Clean Checkout: blocked during collection; preflight and single official submission completed from clean checkout, but terminal state/artifacts cannot be collected until Leonardo SSH authentication is restored.
+- `scientific-critic` G8-B Official Result Auditor: pending; independently audit final configs, metrics, and claim strength after artifact collection.
 - `repo-cartographer` G8-C Train-Only Data Path: complete; recommends low-magnitude train-only color jitter as cleanest next data-path candidate.
 - Housekeeper: Codex cron automation `cifar100-speedrun-housekeeper-20m` is active every 20 minutes. It must not launch jobs or mutate Flywheel/Linear.
 
@@ -58,11 +60,12 @@ G8-B `ns3_mom93` dev10 train-dev follow-up is active. G1 controls, G2 interactiv
 - [x] G8 official Flywheel logging delegated/completed: Flywheel node `c184a66e-6cdd-4b6b-9c23-197b0b58dd47`.
 - [x] G8-B `ns3_mom93` dev10 objective completed: claim is that `C100_NS_STEPS=3 C100_MUON_MOMENTUM=0.93` preserves train-dev accuracy while reducing timed training versus the 13-epoch one-cycle longwarm baseline. Evidence path: `orchestration/g8-b-muon/runtime-dev10-20260704T000009Z/`. Output path: remote `outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/`. Job `48460378` completed `0:0`; recomputation found candidate mean accuracy `0.709700` vs baseline `0.704320`, mean time ratio `0.931954`, and independent critic PASS. Recommendation: promote for train-dev follow-up only.
 - [x] G8-B dev10 Flywheel logging delegated or ruled out: ruled out for this execution request because user explicitly said executor/orchestrator only and no Flywheel/Linear mutation.
+- [ ] G8-B `ns3_mom93` official clean-checkout objective completed: job `48463506` launched from a clean checkout but is blocked during collection because Leonardo SSH authentication failed. Evidence path: `orchestration/g8-b-muon/runtime-official-20260704T003556Z/`. Remote output path: `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun-g8b-official-clean/outputs/cifar100_speedrun/g8b_ns3_mom93_official_20260704T003556Z/`. Required next evidence: terminal `sacct`, `paired_summary.json`, raw configs/metrics, clean git metadata, recomputed paired metrics, and independent result critic.
 
 ## Immediate Backlog
 
-1. Decide whether to pre-register G8-B `ns3_mom93` for a clean official validation run; do not launch official validation without explicit approval.
-2. Convert G8-C data-path map into one train-only implementation plan, likely low-magnitude color jitter, after G8-B dev10 decision.
+1. Restore Leonardo SSH authentication, check `sacct -j 48463506`, pull G8-B official artifacts exactly once, recompute metrics, and delegate independent result critic. Do not resubmit before verifying job `48463506` failed/canceled.
+2. Convert G8-C data-path map into one train-only implementation plan, likely low-magnitude color jitter, after the official G8-B decision.
 3. Keep exploratory follow-ups on `train_dev`; use official validation only for pre-registered finalist/record evidence.
 
 ## Active Assumptions And Ambiguities

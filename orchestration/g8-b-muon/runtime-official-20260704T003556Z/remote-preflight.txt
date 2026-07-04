@@ -1,0 +1,59 @@
+== remote clean preflight 20260704T003853Z ==
+CLEAN=/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun-g8b-official-clean
+HEAD=4ba08a7b3fea1652411a3adcabddc33fb2821ffe
+STATUS_SHORT_BEGIN
+STATUS_SHORT_END
+IGNORED_DATA_STATUS_BEGIN
+!! cifar100-benchmark/cifar100/
+IGNORED_DATA_STATUS_END
+OUTPUT_ABSENT /leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun-g8b-official-clean/outputs/cifar100_speedrun/g8b_ns3_mom93_official_20260704T003556Z
+== bash syntax ==
+bash_n=pass
+== wrapper env support ==
+78:  unset C100_NS_STEPS C100_MUON_MOMENTUM C100_MUON_WEIGHT_DECAY C100_SGD_MOMENTUM
+92:      C100_EPOCHS|C100_BATCH|C100_WIDTHS|C100_BLOCKS|C100_MUON_LR|C100_BIAS_LR|C100_NS_STEPS|C100_MUON_MOMENTUM|C100_MUON_WEIGHT_DECAY|C100_SGD_MOMENTUM|C100_LABEL_SMOOTHING|C100_CUTOUT_SIZE|C100_LR_SCHEDULE|C100_ONECYCLE_PCT_UP|C100_ONECYCLE_DIV_FACTOR)
+102:validate_env_tokens BASELINE_ENV "${BASELINE_ENV:-}"
+103:validate_env_tokens CANDIDATE_ENV "${CANDIDATE_ENV:-}"
+124:  C100_NS_STEPS=${C100_NS_STEPS:-5} \
+125:  C100_MUON_MOMENTUM=${C100_MUON_MOMENTUM:-0.95} \
+133:# Candidate overrides are passed through CANDIDATE_ENV, for example:
+134:# CANDIDATE_ENV='C100_MUON_LR=0.032 C100_BIAS_LR=0.018 C100_NS_STEPS=6'
+141:    if [[ -n "${CANDIDATE_ENV:-}" ]]; then
+142:      export ${CANDIDATE_ENV}
+154:    if [[ -n "${BASELINE_ENV:-}" ]]; then
+155:      export ${BASELINE_ENV}
+175:python - <<'PY' "$OUT_ROOT" "${CANDIDATE_ENV:-}" "${BASELINE_ENV:-}" "$VALIDATION_SOURCE" "$RECORD"
+217:    "C100_NS_STEPS": "ns_steps",
+218:    "C100_MUON_MOMENTUM": "muon_momentum",
+261:        raise SystemExit(f"CANDIDATE_ENV contains untracked keys: {unknown_keys}")
+268:        raise SystemExit("CANDIDATE_ENV was set, but candidate config matches baseline on all tracked training fields.")
+== trainer knob support ==
+49:def make_train_dev_split(images, labels, dev_per_class=50, split_seed=20260703):
+57:        dev_parts.append(cls_idx[:dev_per_class])
+58:        train_parts.append(cls_idx[dev_per_class:])
+336:def write_repro_metadata(output_dir):
+362:    write_json(output_dir / "repro_metadata.json", metadata)
+480:    validation_source = os.getenv("C100_VALIDATION_SOURCE", "official")
+481:    dev_per_class = int(os.getenv("C100_DEV_PER_CLASS", "50"))
+482:    dev_split_seed = int(os.getenv("C100_DEV_SPLIT_SEED", "20260703"))
+492:    ns_steps = parse_bounded_int_env("C100_NS_STEPS", 5, 1, 8)
+493:    muon_momentum = parse_bounded_float_env("C100_MUON_MOMENTUM", 0.95, 0.0, 1.0, include_max=False)
+499:    if validation_source == "official":
+501:    elif validation_source == "train_dev":
+502:        train_images, train_labels, eval_images, eval_labels = make_train_dev_split(train_images, train_labels, dev_per_class, dev_split_seed)
+504:        raise ValueError(f"unknown C100_VALIDATION_SOURCE={validation_source!r}")
+525:        "validation_source": validation_source,
+526:        "dev_per_class": dev_per_class if validation_source == "train_dev" else None,
+527:        "dev_split_seed": dev_split_seed if validation_source == "train_dev" else None,
+528:        "train_examples": len(train_images),
+529:        "eval_examples": len(eval_images),
+553:        write_repro_metadata(output_dir)
+554:    print(f"config model=simple_resnet_muon runs={runs} epochs={epochs} batch={batch_size} target={target} validation_source={validation_source} compile={int(compile_enabled)} compile_mode={compile_mode_label} label_smoothing={label_smoothing} cutout_size={cutout_size} lr_schedule={lr_schedule} onecycle_pct_up={onecycle_pct_up} onecycle_div_factor={onecycle_div_factor} ns_steps={ns_steps} muon_momentum={muon_momentum} muon_weight_decay={muon_weight_decay} sgd_momentum={sgd_momentum} no_tta=1")
+== env and py_compile ==
+[env_setup] cifar100 ready (python=Python 3.11.15)
+py_compile=pass
+== official split shapes ==
+{"test": {"images_shape": [10000, 32, 32, 3], "labels_shape": [10000]}, "train": {"images_shape": [50000, 32, 32, 3], "labels_shape": [50000]}}
+split_shapes=pass
+== final git status ==
+4ba08a7b3fea1652411a3adcabddc33fb2821ffe
