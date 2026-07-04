@@ -16,6 +16,10 @@ A dry-run-by-default pending-job collector is ready at `orchestration/g9-frontie
 
 Cron automation `cifar100-pending-job-collector-15m` is active every 15 minutes. It only probes SSH, runs the audited collector after authentication succeeds, writes monitor traces, and prepares critic handoff files. It must not launch, cancel, resubmit, interpret metrics, or mutate Flywheel/Linear.
 
+Leonardo SSH authentication remains blocked locally; diagnostic evidence is recorded in `orchestration/g9-frontier/ssh-auth-diagnostic-20260704.md`. The failure affects `leonardo`, `leonardo01`, and `leonardo02`, with the ED25519 key offered and rejected and no local Kerberos ticket. This is an operational collection blocker, not scientific evidence.
+
+Post-auth collection handoff is prepared and critic-approved in `orchestration/g9-frontier/post-auth-collection-handoff.md`; audit record: `orchestration/g9-frontier/post-auth-handoff-audit.md`. It records the exact order after SSH returns: collect both pending jobs once, recompute when raw artifacts exist, classify each stream with separate critics, and route only through the audited post-collection decision gate.
+
 Post-collection recomputation tooling is ready at `orchestration/g9-frontier/recompute_paired_metrics.py`, with protocol and critic PASS in `orchestration/g9-frontier/recompute-protocol.md` and `orchestration/g9-frontier/recompute-helper-audit.md`. It recomputes paired metrics from raw local `metrics.csv` files and validates expected validation source, record mode, paired seed count, and raw artifact presence; it does not make promotion or record claims.
 
 The post-collection decision gate is complete and critic-approved in `orchestration/g9-frontier/post-collection-decision-gate.md`; audit record: `orchestration/g9-frontier/post-collection-gate-audit.md`. It maps the four possible G8-B official / AirBench dev10 outcomes to exactly one next action, keeps all follow-up selection on `train_dev`, and keeps any future record under the existing Flywheel root `83c2d2f5-2ac3-5ee5-85f1-2d5bb87ef299`.
@@ -83,6 +87,8 @@ The post-collection decision gate is complete and critic-approved in `orchestrat
 - [x] G8-C data-path local implementation completed: see worktree `/Users/lucacerovaz/Documents/Cifar100 Speedrun-worktrees/data-path`, commit `b9a8e1a1819e865ae065e7a9b6fea353add78e00`; run remains blocked behind collection gates.
 - [x] Pending-job collection helper completed and audited: see `orchestration/g9-frontier/collect_pending_jobs.sh` and `orchestration/g9-frontier/collection-helper-audit.md`.
 - [x] Pending-job collection monitor active: Codex automation `cifar100-pending-job-collector-15m`.
+- [x] Leonardo SSH auth diagnostic recorded: see `orchestration/g9-frontier/ssh-auth-diagnostic-20260704.md`.
+- [x] Post-auth collection handoff prepared and audited: see `orchestration/g9-frontier/post-auth-collection-handoff.md` and `orchestration/g9-frontier/post-auth-handoff-audit.md`; local static readiness checks passed for the collector shell syntax and recompute Python AST parse.
 - [x] Post-collection recompute helper completed and audited: see `orchestration/g9-frontier/recompute_paired_metrics.py` and `orchestration/g9-frontier/recompute-helper-audit.md`.
 - [x] Post-collection decision gate audited: PASS recorded in `orchestration/g9-frontier/post-collection-gate-audit.md`; use `orchestration/g9-frontier/post-collection-decision-gate.md` as the router only after both pending jobs have terminal evidence and critic classification.
 
