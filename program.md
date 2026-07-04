@@ -12,6 +12,8 @@ AirBench dev10 job `48463507` was also submitted from the isolated `airbench-tra
 
 Validation-compliance audit is complete in `orchestration/validation-compliance/current-audit.md`: accepted record/finalist evidence uses official validation, train-dev is used only for exploratory search, and prior cancellations were governance/rule-compliance interventions rather than interruptions of compliant independent workstreams. G9 frontier planning is complete in `orchestration/g9-frontier/trajectory-plan.md`; the immediate queue is collect `48463506`, collect `48463507`, then test additive combinations only if the collected evidence and critics justify them.
 
+A dry-run-by-default pending-job collector is ready at `orchestration/g9-frontier/collect_pending_jobs.sh` with protocol and critic PASS in `orchestration/g9-frontier/collection-protocol.md` and `orchestration/g9-frontier/collection-helper-audit.md`. It must be used only after SSH authentication is restored; it does not launch, cancel, resubmit, or mutate remote state.
+
 ## Subagent Delegation Plan
 
 - Main orchestrator: maintain global gates, reconcile subagent evidence, keep exploratory and official evidence labeled correctly, and launch only audited follow-up trajectories.
@@ -72,10 +74,11 @@ Validation-compliance audit is complete in `orchestration/validation-compliance/
 - [x] Validation-compliance audit completed: see `orchestration/validation-compliance/current-audit.md`.
 - [x] G9 trajectory plan completed: see `orchestration/g9-frontier/trajectory-plan.md`.
 - [x] G8-C data-path local implementation completed: see worktree `/Users/lucacerovaz/Documents/Cifar100 Speedrun-worktrees/data-path`, commit `b9a8e1a1819e865ae065e7a9b6fea353add78e00`; run remains blocked behind collection gates.
+- [x] Pending-job collection helper completed and audited: see `orchestration/g9-frontier/collect_pending_jobs.sh` and `orchestration/g9-frontier/collection-helper-audit.md`.
 
 ## Immediate Backlog
 
-1. Restore Leonardo SSH authentication, check `sacct -j 48463506,48463507`, and pull each job's artifacts exactly once. Do not resubmit either run before verifying the original job failed/canceled.
+1. Restore Leonardo SSH authentication, then run `bash orchestration/g9-frontier/collect_pending_jobs.sh --execute` to check `sacct -j 48463506,48463507` and pull each job's artifacts exactly once. Do not resubmit either run before verifying the original job failed/canceled.
 2. Recompute G8-B official metrics from raw official artifacts, verify `RECORD=1`, `VALIDATION_SOURCE=official`, official train/test split shapes, exact config diffs, and delegate independent result critic.
 3. Recompute AirBench dev10 metrics from raw train-dev artifacts, verify `RECORD=0`, `VALIDATION_SOURCE=train_dev`, fixed dev split, exact pad/flip config diffs, provenance hash, and delegate independent result critic.
 4. If G8-B official and AirBench dev10 both pass, launch one train-dev dev3 additive candidate only after a new predeclared trace: `ns3_mom93 + C100_TRANSLATE_PAD=2 C100_FLIP_MODE=alternating`. If one fails, follow the branch logic in `orchestration/g9-frontier/trajectory-plan.md`.
