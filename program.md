@@ -18,6 +18,8 @@ Cron automation `cifar100-pending-job-collector-15m` is active every 15 minutes.
 
 Leonardo SSH authentication remains blocked locally; diagnostic evidence is recorded in `orchestration/g9-frontier/ssh-auth-diagnostic-20260704.md`. The failure affects `leonardo`, `leonardo01`, and `leonardo02`, with the ED25519 key offered and rejected and no local Kerberos ticket. This is an operational collection blocker, not scientific evidence.
 
+User-side Leonardo auth recovery checks are recorded in `orchestration/g9-frontier/leonardo-auth-recovery-runbook.md`. Once authentication works, resume with `bash orchestration/g9-frontier/collect_pending_jobs.sh --execute`; do not launch replacement or dependent jobs before terminal evidence and critic classification exist.
+
 Post-auth collection handoff is prepared and critic-approved in `orchestration/g9-frontier/post-auth-collection-handoff.md`; audit record: `orchestration/g9-frontier/post-auth-handoff-audit.md`. It records the exact order after SSH returns: collect both pending jobs once, recompute when raw artifacts exist, classify each stream with separate critics, and route only through the audited post-collection decision gate.
 
 Post-collection recomputation tooling is ready at `orchestration/g9-frontier/recompute_paired_metrics.py`, with protocol and critic PASS in `orchestration/g9-frontier/recompute-protocol.md` and `orchestration/g9-frontier/recompute-helper-audit.md`. It recomputes paired metrics from raw local `metrics.csv` files and validates expected validation source, record mode, paired seed count, and raw artifact presence; it does not make promotion or record claims.
@@ -88,6 +90,7 @@ The post-collection decision gate is complete and critic-approved in `orchestrat
 - [x] Pending-job collection helper completed and audited: see `orchestration/g9-frontier/collect_pending_jobs.sh` and `orchestration/g9-frontier/collection-helper-audit.md`.
 - [x] Pending-job collection monitor active: Codex automation `cifar100-pending-job-collector-15m`.
 - [x] Leonardo SSH auth diagnostic recorded: see `orchestration/g9-frontier/ssh-auth-diagnostic-20260704.md`.
+- [x] Leonardo auth recovery runbook recorded: see `orchestration/g9-frontier/leonardo-auth-recovery-runbook.md`.
 - [x] Post-auth collection handoff prepared and audited: see `orchestration/g9-frontier/post-auth-collection-handoff.md` and `orchestration/g9-frontier/post-auth-handoff-audit.md`; local static readiness checks passed for the collector shell syntax and recompute Python AST parse.
 - [x] Post-collection recompute helper completed and audited: see `orchestration/g9-frontier/recompute_paired_metrics.py` and `orchestration/g9-frontier/recompute-helper-audit.md`.
 - [x] Post-collection decision gate audited: PASS recorded in `orchestration/g9-frontier/post-collection-gate-audit.md`; use `orchestration/g9-frontier/post-collection-decision-gate.md` as the router only after both pending jobs have terminal evidence and critic classification.
