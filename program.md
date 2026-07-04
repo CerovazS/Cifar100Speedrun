@@ -6,7 +6,11 @@ Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Spee
 
 ## Current Phase
 
-G8-B `ns3_mom93` official clean-checkout comparison is blocked during collection. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, G5b train-dev search, G7-T4 capacity screens, G7-T2 official one-cycle, G8-A official `13ep-onecycle-longwarm`, and G8-B `ns3_mom93` train-dev dev10 are complete. The official paired 30-run comparison was pre-registered and launched from a clean Leonardo checkout at commit `4ba08a7b3fea1652411a3adcabddc33fb2821ffe`: `RECORD=1`, `VALIDATION_SOURCE=official`, `RUNS=30`, `EPOCHS=13`, `BASE_SEED=894000`, unique `RUN_ID=g8b_ns3_mom93_official_20260704T003556Z`, no validation path edits, no TTA/adaptation, no dirty execution checkout, and no output directory reuse. Job `48463506` was observed running on `lrdn0042`, but final state and artifacts are unavailable until Leonardo SSH authentication is restored. Flywheel and Linear mutation are explicitly out of scope until artifacts are collected and independently critiqued.
+G8-B `ns3_mom93` official clean-checkout comparison and AirBench dev10 confirmation are blocked during collection, not canceled. The official G8-B paired 30-run comparison was pre-registered and launched from a clean Leonardo checkout at commit `4ba08a7b3fea1652411a3adcabddc33fb2821ffe`: `RECORD=1`, `VALIDATION_SOURCE=official`, `RUNS=30`, `EPOCHS=13`, `BASE_SEED=894000`, unique `RUN_ID=g8b_ns3_mom93_official_20260704T003556Z`, no validation path edits, no TTA/adaptation, no dirty execution checkout, and no output directory reuse. Job `48463506` was observed running on `lrdn0042`, but final state and artifacts are unavailable until Leonardo SSH authentication is restored.
+
+AirBench dev10 job `48463507` was also submitted from the isolated `airbench-transfer` worktree with `RECORD=0`, `VALIDATION_SOURCE=train_dev`, `RUNS=10`, and unique `RUN_ID=airbench_aug_pad2_alt_dev10_20260704T003552Z`; it was observed running on `lrdn1864` and is likewise uncollected due SSH authentication failure. No resubmission is allowed before `sacct` proves the original job failed or was canceled.
+
+Validation-compliance audit is complete in `orchestration/validation-compliance/current-audit.md`: accepted record/finalist evidence uses official validation, train-dev is used only for exploratory search, and prior cancellations were governance/rule-compliance interventions rather than interruptions of compliant independent workstreams. G9 frontier planning is complete in `orchestration/g9-frontier/trajectory-plan.md`; the immediate queue is collect `48463506`, collect `48463507`, then test additive combinations only if the collected evidence and critics justify them.
 
 ## Subagent Delegation Plan
 
@@ -30,6 +34,9 @@ G8-B `ns3_mom93` official clean-checkout comparison is blocked during collection
 - Main orchestrator G8-B `ns3_mom93` Official Clean Checkout: blocked during collection; preflight and single official submission completed from clean checkout, but terminal state/artifacts cannot be collected until Leonardo SSH authentication is restored.
 - `scientific-critic` G8-B Official Result Auditor: pending; independently audit final configs, metrics, and claim strength after artifact collection.
 - `repo-cartographer` G8-C Train-Only Data Path: complete; recommends low-magnitude train-only color jitter as cleanest next data-path candidate.
+- `repo-cartographer` Validation Compliance Current Audit: complete; see `orchestration/validation-compliance/current-audit.md`.
+- `experiment-architect` G9 Frontier Planner: complete; see `orchestration/g9-frontier/trajectory-plan.md`.
+- `research-orchestrator` G8-C Data-Path Worktree: complete local default-off color-jitter implementation on `/Users/lucacerovaz/Documents/Cifar100 Speedrun-worktrees/data-path`, commit `b9a8e1a1819e865ae065e7a9b6fea353add78e00`; no CINECA job launched.
 - Housekeeper: Codex cron automation `cifar100-speedrun-housekeeper-20m` is active every 20 minutes. It must not launch jobs or mutate Flywheel/Linear.
 
 ## Checklist
@@ -61,12 +68,19 @@ G8-B `ns3_mom93` official clean-checkout comparison is blocked during collection
 - [x] G8-B `ns3_mom93` dev10 objective completed: claim is that `C100_NS_STEPS=3 C100_MUON_MOMENTUM=0.93` preserves train-dev accuracy while reducing timed training versus the 13-epoch one-cycle longwarm baseline. Evidence path: `orchestration/g8-b-muon/runtime-dev10-20260704T000009Z/`. Output path: remote `outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/`. Job `48460378` completed `0:0`; recomputation found candidate mean accuracy `0.709700` vs baseline `0.704320`, mean time ratio `0.931954`, and independent critic PASS. Recommendation: promote for train-dev follow-up only.
 - [x] G8-B dev10 Flywheel logging delegated or ruled out: ruled out for this execution request because user explicitly said executor/orchestrator only and no Flywheel/Linear mutation.
 - [ ] G8-B `ns3_mom93` official clean-checkout objective completed: job `48463506` launched from a clean checkout but is blocked during collection because Leonardo SSH authentication failed. Evidence path: `orchestration/g8-b-muon/runtime-official-20260704T003556Z/`. Remote output path: `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun-g8b-official-clean/outputs/cifar100_speedrun/g8b_ns3_mom93_official_20260704T003556Z/`. Required next evidence: terminal `sacct`, `paired_summary.json`, raw configs/metrics, clean git metadata, recomputed paired metrics, and independent result critic.
+- [ ] AirBench dev10 objective completed: job `48463507` launched from the isolated AirBench worktree but is blocked during collection because Leonardo SSH authentication failed. Required next evidence: terminal `sacct`, paired artifacts, raw configs/metrics, provenance/diff-hash verification, recomputed train-dev metrics, and independent result critic.
+- [x] Validation-compliance audit completed: see `orchestration/validation-compliance/current-audit.md`.
+- [x] G9 trajectory plan completed: see `orchestration/g9-frontier/trajectory-plan.md`.
+- [x] G8-C data-path local implementation completed: see worktree `/Users/lucacerovaz/Documents/Cifar100 Speedrun-worktrees/data-path`, commit `b9a8e1a1819e865ae065e7a9b6fea353add78e00`; run remains blocked behind collection gates.
 
 ## Immediate Backlog
 
-1. Restore Leonardo SSH authentication, check `sacct -j 48463506`, pull G8-B official artifacts exactly once, recompute metrics, and delegate independent result critic. Do not resubmit before verifying job `48463506` failed/canceled.
-2. Convert G8-C data-path map into one train-only implementation plan, likely low-magnitude color jitter, after the official G8-B decision.
-3. Keep exploratory follow-ups on `train_dev`; use official validation only for pre-registered finalist/record evidence.
+1. Restore Leonardo SSH authentication, check `sacct -j 48463506,48463507`, and pull each job's artifacts exactly once. Do not resubmit either run before verifying the original job failed/canceled.
+2. Recompute G8-B official metrics from raw official artifacts, verify `RECORD=1`, `VALIDATION_SOURCE=official`, official train/test split shapes, exact config diffs, and delegate independent result critic.
+3. Recompute AirBench dev10 metrics from raw train-dev artifacts, verify `RECORD=0`, `VALIDATION_SOURCE=train_dev`, fixed dev split, exact pad/flip config diffs, provenance hash, and delegate independent result critic.
+4. If G8-B official and AirBench dev10 both pass, launch one train-dev dev3 additive candidate only after a new predeclared trace: `ns3_mom93 + C100_TRANSLATE_PAD=2 C100_FLIP_MODE=alternating`. If one fails, follow the branch logic in `orchestration/g9-frontier/trajectory-plan.md`.
+5. Keep G8-C color jitter as the next fallback accuracy-reserve train-dev screen; do not run it before the collection gates above.
+6. Keep exploratory follow-ups on `train_dev`; use official validation only for pre-registered finalist/record evidence.
 
 ## Active Assumptions And Ambiguities
 
