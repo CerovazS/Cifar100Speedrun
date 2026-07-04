@@ -342,8 +342,9 @@ def write_repro_metadata(output_dir):
     if diff:
         diff_path = "git_diff.patch"
         patch_path = output_dir / diff_path
-        patch_path.write_text(diff + ("\n" if not diff.endswith("\n") else ""))
-        diff_sha256 = hashlib.sha256(diff.encode()).hexdigest()
+        diff_bytes = (diff + ("\n" if not diff.endswith("\n") else "")).encode()
+        patch_path.write_bytes(diff_bytes)
+        diff_sha256 = hashlib.sha256(diff_bytes).hexdigest()
     metadata = {
         "git": {
             "repo_root": repo_root,
