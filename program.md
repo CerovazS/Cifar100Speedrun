@@ -18,6 +18,8 @@ Cron automation `cifar100-pending-job-collector-15m` is active every 15 minutes.
 
 Post-collection recomputation tooling is ready at `orchestration/g9-frontier/recompute_paired_metrics.py`, with protocol and critic PASS in `orchestration/g9-frontier/recompute-protocol.md` and `orchestration/g9-frontier/recompute-helper-audit.md`. It recomputes paired metrics from raw local `metrics.csv` files and validates expected validation source, record mode, paired seed count, and raw artifact presence; it does not make promotion or record claims.
 
+The post-collection decision gate is complete and critic-approved in `orchestration/g9-frontier/post-collection-decision-gate.md`; audit record: `orchestration/g9-frontier/post-collection-gate-audit.md`. It maps the four possible G8-B official / AirBench dev10 outcomes to exactly one next action, keeps all follow-up selection on `train_dev`, and keeps any future record under the existing Flywheel root `83c2d2f5-2ac3-5ee5-85f1-2d5bb87ef299`.
+
 ## Subagent Delegation Plan
 
 - Main orchestrator: maintain global gates, reconcile subagent evidence, keep exploratory and official evidence labeled correctly, and launch only audited follow-up trajectories.
@@ -42,6 +44,7 @@ Post-collection recomputation tooling is ready at `orchestration/g9-frontier/rec
 - `repo-cartographer` G8-C Train-Only Data Path: complete; recommends low-magnitude train-only color jitter as cleanest next data-path candidate.
 - `repo-cartographer` Validation Compliance Current Audit: complete; see `orchestration/validation-compliance/current-audit.md`.
 - `experiment-architect` G9 Frontier Planner: complete; see `orchestration/g9-frontier/trajectory-plan.md`.
+- `scientific-critic` G9 Post-Collection Gate Auditor: complete; PASS recorded in `orchestration/g9-frontier/post-collection-gate-audit.md`.
 - `research-orchestrator` G8-C Data-Path Worktree: complete local default-off color-jitter implementation on `/Users/lucacerovaz/Documents/Cifar100 Speedrun-worktrees/data-path`, commit `b9a8e1a1819e865ae065e7a9b6fea353add78e00`; no CINECA job launched.
 - Housekeeper: Codex cron automation `cifar100-speedrun-housekeeper-20m` is active every 20 minutes. It must not launch jobs or mutate Flywheel/Linear.
 
@@ -81,13 +84,14 @@ Post-collection recomputation tooling is ready at `orchestration/g9-frontier/rec
 - [x] Pending-job collection helper completed and audited: see `orchestration/g9-frontier/collect_pending_jobs.sh` and `orchestration/g9-frontier/collection-helper-audit.md`.
 - [x] Pending-job collection monitor active: Codex automation `cifar100-pending-job-collector-15m`.
 - [x] Post-collection recompute helper completed and audited: see `orchestration/g9-frontier/recompute_paired_metrics.py` and `orchestration/g9-frontier/recompute-helper-audit.md`.
+- [x] Post-collection decision gate audited: PASS recorded in `orchestration/g9-frontier/post-collection-gate-audit.md`; use `orchestration/g9-frontier/post-collection-decision-gate.md` as the router only after both pending jobs have terminal evidence and critic classification.
 
 ## Immediate Backlog
 
 1. Restore Leonardo SSH authentication, then run `bash orchestration/g9-frontier/collect_pending_jobs.sh --execute` to check `sacct -j 48463506,48463507` and pull each job's artifacts exactly once. Do not resubmit either run before verifying the original job failed/canceled.
 2. Recompute G8-B official metrics from raw official artifacts with `recompute_paired_metrics.py`, verify `RECORD=1`, `VALIDATION_SOURCE=official`, official train/test split shapes, exact config diffs, and delegate independent result critic.
 3. Recompute AirBench dev10 metrics from raw train-dev artifacts with `recompute_paired_metrics.py`, verify `RECORD=0`, `VALIDATION_SOURCE=train_dev`, fixed dev split, exact pad/flip config diffs, provenance hash, and delegate independent result critic.
-4. If G8-B official and AirBench dev10 both pass, launch one train-dev dev3 additive candidate only after a new predeclared trace: `ns3_mom93 + C100_TRANSLATE_PAD=2 C100_FLIP_MODE=alternating`. If one fails, follow the branch logic in `orchestration/g9-frontier/trajectory-plan.md`.
+4. If G8-B official and AirBench dev10 both pass, launch one train-dev dev3 additive candidate only after a new predeclared trace: `ns3_mom93 + C100_TRANSLATE_PAD=2 C100_FLIP_MODE=alternating`. If one fails, follow the audited branch logic in `orchestration/g9-frontier/post-collection-decision-gate.md`.
 5. Keep G8-C color jitter as the next fallback accuracy-reserve train-dev screen; do not run it before the collection gates above.
 6. Keep exploratory follow-ups on `train_dev`; use official validation only for pre-registered finalist/record evidence.
 
