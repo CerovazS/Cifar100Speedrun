@@ -1,0 +1,2 @@
+run,seed,train_acc,val_acc,target_hit,time_seconds,epochs,batch_size,steps_per_epoch,total_steps
+1,893609,0.8941,0.7038,1.0,19.14612890625,13.0,1024,43,559

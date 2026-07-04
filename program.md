@@ -6,7 +6,7 @@ Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Spee
 
 ## Current Phase
 
-G8-B Muon mechanics train-dev pilot completed. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, G5b train-dev search, and G7-T4 capacity screens are complete. G7-T2 one-cycle passed official evidence and is logged to Flywheel. G8-A `13ep-onecycle-longwarm` passed dev10 train-dev, completed official 30-run evidence, and is logged to Flywheel node `c184a66e-6cdd-4b6b-9c23-197b0b58dd47`. The G8-B evidence is exploratory only: `RECORD=0`, `VALIDATION_SOURCE=train_dev`, `RUNS=3`, `C100_DEV_PER_CLASS=50`, `C100_DEV_SPLIT_SEED=20260703`, unique `RUN_ID`/`BASE_SEED`, no official validation, no validation path edits, no TTA/adaptation, and no output directory reuse. Flywheel mutation is explicitly out of scope for this pilot.
+G8-B `ns3_mom93` dev10 train-dev follow-up is active. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, G5b train-dev search, and G7-T4 capacity screens are complete. G7-T2 one-cycle passed official evidence and is logged to Flywheel. G8-A `13ep-onecycle-longwarm` passed dev10 train-dev, completed official 30-run evidence, and is logged to Flywheel node `c184a66e-6cdd-4b6b-9c23-197b0b58dd47`. The active G8-B follow-up is exploratory only: `RECORD=0`, `VALIDATION_SOURCE=train_dev`, `RUNS=10`, `C100_DEV_PER_CLASS=50`, `C100_DEV_SPLIT_SEED=20260703`, unique `RUN_ID=g8b_ns3_mom93_longwarm_dev10_20260704T000009Z`, no official validation, no validation path edits, no TTA/adaptation, and no output directory reuse. Flywheel and Linear mutation are explicitly out of scope.
 
 ## Subagent Delegation Plan
 
@@ -25,6 +25,7 @@ G8-B Muon mechanics train-dev pilot completed. G1 controls, G2 interactive smoke
 - `research-logger` G7 Official Logger: complete; Flywheel node `c4048ac9-9762-5a64-a87e-4c6360af75d2`.
 - `research-orchestrator` G8-A One-Cycle Compression Frontier: official 30-run evidence complete, critic-approved, and logged to Flywheel node `c184a66e-6cdd-4b6b-9c23-197b0b58dd47`.
 - Main orchestrator G8-B Muon Mechanics Train-Dev Pilot: complete; synced bounded mechanics knobs to Leonardo, ran three paired train-dev dev3 pilots, babysat jobs, pulled evidence, and made promote/hold/kill decision without Flywheel mutation.
+- Main orchestrator G8-B `ns3_mom93` Dev10 Follow-up: active; sync committed launch files, run remote preflight, submit one paired train-dev dev10 job, babysit to completion/failure, mirror artifacts under `orchestration/g8-b-muon/runtime-dev10-20260704T000009Z/`, recompute metrics, and recommend promote/hold/kill.
 - `scientific-critic` G8-B Pre-Launch/Result Auditor: active; read-only audit of launch constraints and final evidence.
 - `repo-cartographer` G8-C Train-Only Data Path: complete; recommends low-magnitude train-only color jitter as cleanest next data-path candidate.
 - Housekeeper: Codex cron automation `cifar100-speedrun-housekeeper-20m` is active every 20 minutes. It must not launch jobs or mutate Flywheel/Linear.
@@ -55,11 +56,13 @@ G8-B Muon mechanics train-dev pilot completed. G1 controls, G2 interactive smoke
 - [x] G8 official `13ep-onecycle-longwarm` completed and audited.
 - [x] G8-B train-dev pilot completed: initial runtime `orchestration/g8-b-muon/runtime-20260703T232332Z/` canceled because split identity was not explicitly pinned in launch env; restarted runtime `orchestration/g8-b-muon/runtime-20260703T233518Z/` completed with jobs `48457399`, `48457400`, `48458063`. Result: promote `g8b_ns3_mom93_longwarm_dev3` to dev10 train-dev only.
 - [x] G8 official Flywheel logging delegated/completed: Flywheel node `c184a66e-6cdd-4b6b-9c23-197b0b58dd47`.
+- [x] G8-B `ns3_mom93` dev10 objective completed: claim is that `C100_NS_STEPS=3 C100_MUON_MOMENTUM=0.93` preserves train-dev accuracy while reducing timed training versus the 13-epoch one-cycle longwarm baseline. Evidence path: `orchestration/g8-b-muon/runtime-dev10-20260704T000009Z/`. Output path: remote `outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/`. Job `48460378` completed `0:0`; recomputation found candidate mean accuracy `0.709700` vs baseline `0.704320`, mean time ratio `0.931954`, and independent critic PASS. Recommendation: promote for train-dev follow-up only.
+- [x] G8-B dev10 Flywheel logging delegated or ruled out: ruled out for this execution request because user explicitly said executor/orchestrator only and no Flywheel/Linear mutation.
 
 ## Immediate Backlog
 
-1. Run G8-B `ns3_mom93` dev10 train-dev follow-up only if prioritizing Muon mechanics after G8 official logging.
-2. Convert G8-C data-path map into one train-only implementation plan, likely low-magnitude color jitter, after G8 official decision.
+1. Decide whether to pre-register G8-B `ns3_mom93` for a clean official validation run; do not launch official validation without explicit approval.
+2. Convert G8-C data-path map into one train-only implementation plan, likely low-magnitude color jitter, after G8-B dev10 decision.
 3. Keep exploratory follow-ups on `train_dev`; use official validation only for pre-registered finalist/record evidence.
 
 ## Active Assumptions And Ambiguities

@@ -1,0 +1,602 @@
+diff --git a/cifar100-benchmark/train_cifar100_resnet_muon.py b/cifar100-benchmark/train_cifar100_resnet_muon.py
+index 761a202..f7df34d 100644
+--- a/cifar100-benchmark/train_cifar100_resnet_muon.py
++++ b/cifar100-benchmark/train_cifar100_resnet_muon.py
+@@ -120,9 +120,39 @@ class Block(nn.Module):
+         return F.relu(out + self.skip(x))
+ 
+ 
++class PreActBlock(nn.Module):
++    def __init__(self, channels_in, channels_out, stride=1):
++        super().__init__()
++        self.bn1 = nn.BatchNorm2d(channels_in)
++        self.conv1 = nn.Conv2d(channels_in, channels_out, 3, stride=stride, padding=1, bias=False)
++        self.bn2 = nn.BatchNorm2d(channels_out)
++        self.conv2 = nn.Conv2d(channels_out, channels_out, 3, padding=1, bias=False)
++        self.project = channels_in != channels_out or stride != 1
++        self.skip = nn.Conv2d(
++            channels_in,
++            channels_out,
++            1,
++            stride=stride,
++            bias=False,
++        ) if self.project else nn.Identity()
++
++    def forward(self, x):
++        out = F.relu(self.bn1(x))
++        skip = self.skip(out) if self.project else x
++        out = self.conv1(out)
++        out = self.conv2(F.relu(self.bn2(out)))
++        return out + skip
++
++
+ class SimpleResNet(nn.Module):
+-    def __init__(self, widths=(64, 128, 256), blocks=(2, 2, 2), num_classes=100):
++    def __init__(self, widths=(64, 128, 256), blocks=(2, 2, 2), block_type="basic", num_classes=100):
+         super().__init__()
++        if block_type == "basic":
++            block_cls = Block
++        elif block_type == "preact":
++            block_cls = PreActBlock
++        else:
++            raise ValueError(f"unknown block_type={block_type!r}")
+         self.stem = nn.Sequential(
+             nn.Conv2d(3, widths[0], 3, padding=1, bias=False),
+             nn.BatchNorm2d(widths[0]),
+@@ -133,7 +163,7 @@ class SimpleResNet(nn.Module):
+         for stage, (width, n_blocks) in enumerate(zip(widths, blocks)):
+             for i in range(n_blocks):
+                 stride = 2 if stage > 0 and i == 0 else 1
+-                layers.append(Block(channels, width, stride))
++                layers.append(block_cls(channels, width, stride))
+                 channels = width
+         self.body = nn.Sequential(*layers)
+         self.head = nn.Linear(channels, num_classes, bias=False)
+@@ -166,8 +196,8 @@ def zeropower_newton_schulz(g, steps=5):
+ 
+ 
+ class Muon(torch.optim.Optimizer):
+-    def __init__(self, params, lr=0.02, momentum=0.95, weight_decay=0.0):
+-        defaults = dict(lr=lr, momentum=momentum, weight_decay=weight_decay)
++    def __init__(self, params, lr=0.02, momentum=0.95, weight_decay=0.0, ns_steps=5):
++        defaults = dict(lr=lr, momentum=momentum, weight_decay=weight_decay, ns_steps=ns_steps)
+         super().__init__(params, defaults)
+ 
+     @torch.no_grad()
+@@ -176,6 +206,7 @@ class Muon(torch.optim.Optimizer):
+             lr = group["lr"]
+             momentum = group["momentum"]
+             wd = group["weight_decay"]
++            ns_steps = group["ns_steps"]
+             for p in group["params"]:
+                 if p.grad is None:
+                     continue
+@@ -186,7 +217,7 @@ class Muon(torch.optim.Optimizer):
+                     state["momentum_buffer"] = torch.zeros_like(p)
+                 buf = state["momentum_buffer"]
+                 buf.mul_(momentum).add_(p.grad)
+-                update = zeropower_newton_schulz(buf)
++                update = zeropower_newton_schulz(buf, steps=ns_steps)
+                 fan_out = update.shape[0]
+                 fan_in = max(1, update.numel() // fan_out)
+                 scale = math.sqrt(max(1.0, fan_out / fan_in))
+@@ -285,6 +316,33 @@ def parse_lr_schedule_env():
+     return lr_schedule, onecycle_pct_up, onecycle_div_factor
+ 
+ 
++def parse_block_type_env():
++    block_type = os.getenv("C100_BLOCK_TYPE", "basic").strip().lower()
++    if block_type not in ("basic", "preact"):
++        raise ValueError(f"C100_BLOCK_TYPE must be 'basic' or 'preact', got {block_type!r}")
++    return block_type
++
++
++def parse_bounded_int_env(name, default, min_value, max_value):
++    raw = os.getenv(name)
++    if raw is None or raw.strip() == "":
++        return default
++    value = int(raw)
++    if not min_value <= value <= max_value:
++        raise ValueError(f"{name} must be in [{min_value}, {max_value}], got {value}")
++    return value
++
++
++def parse_bounded_float_env(name, default, min_value, max_value, include_max=True):
++    raw = os.getenv(name)
++    value = default if raw is None or raw.strip() == "" else float(raw)
++    upper_ok = value <= max_value if include_max else value < max_value
++    if not math.isfinite(value) or value < min_value or not upper_ok:
++        upper_bracket = "]" if include_max else ")"
++        raise ValueError(f"{name} must be finite and in [{min_value}, {max_value}{upper_bracket}, got {value!r}")
++    return value
++
++
+ def lr_multiplier(lr_schedule, progress, onecycle_pct_up, onecycle_div_factor):
+     if lr_schedule == "cosine":
+         return 0.5 * (1.0 + math.cos(math.pi * progress))
+@@ -357,14 +415,24 @@ def train_once(
+     lr_schedule,
+     onecycle_pct_up,
+     onecycle_div_factor,
++    ns_steps,
++    muon_momentum,
++    muon_weight_decay,
++    sgd_momentum,
+     evaluate_validation=True,
+ ):
+     seed_all(seed)
+     reset_model(model)
+     muon_params = [p for p in model.parameters() if p.ndim >= 2]
+     other_params = [p for p in model.parameters() if p.ndim < 2]
+-    muon = Muon(muon_params, lr=float(os.getenv("C100_MUON_LR", "0.035")), momentum=0.95, weight_decay=2e-4)
+-    sgd = torch.optim.SGD(other_params, lr=float(os.getenv("C100_BIAS_LR", "0.02")), momentum=0.9, nesterov=True)
++    muon = Muon(
++        muon_params,
++        lr=float(os.getenv("C100_MUON_LR", "0.035")),
++        momentum=muon_momentum,
++        weight_decay=muon_weight_decay,
++        ns_steps=ns_steps,
++    )
++    sgd = torch.optim.SGD(other_params, lr=float(os.getenv("C100_BIAS_LR", "0.02")), momentum=sgd_momentum, nesterov=True)
+     steps_per_epoch = len(train_images) // batch_size
+     total_steps = max(1, int(math.ceil(epochs * steps_per_epoch)))
+     step = 0
+@@ -450,6 +518,7 @@ def main():
+     dev_split_seed = int(os.getenv("C100_DEV_SPLIT_SEED", "20260703"))
+     widths = parse_int_tuple_env("C100_WIDTHS", (64, 128, 256), 3)
+     blocks = parse_int_tuple_env("C100_BLOCKS", (2, 2, 2), 3)
++    block_type = parse_block_type_env()
+     label_smoothing = float(os.getenv("C100_LABEL_SMOOTHING", "0.05"))
+     if not math.isfinite(label_smoothing) or not 0.0 <= label_smoothing <= 1.0:
+         raise ValueError(f"C100_LABEL_SMOOTHING must be finite and in [0, 1], got {label_smoothing!r}")
+@@ -457,6 +526,10 @@ def main():
+     if cutout_size < 0:
+         raise ValueError(f"C100_CUTOUT_SIZE must be non-negative, got {cutout_size}")
+     lr_schedule, onecycle_pct_up, onecycle_div_factor = parse_lr_schedule_env()
++    ns_steps = parse_bounded_int_env("C100_NS_STEPS", 5, 1, 8)
++    muon_momentum = parse_bounded_float_env("C100_MUON_MOMENTUM", 0.95, 0.0, 1.0, include_max=False)
++    muon_weight_decay = parse_bounded_float_env("C100_MUON_WEIGHT_DECAY", 2e-4, 0.0, 0.01)
++    sgd_momentum = parse_bounded_float_env("C100_SGD_MOMENTUM", 0.9, 0.0, 1.0, include_max=False)
+     output_dir_raw = os.getenv("C100_OUTPUT_DIR", "")
+     output_dir = Path(output_dir_raw) if output_dir_raw else None
+     train_images, train_labels = load_split("train")
+@@ -469,7 +542,7 @@ def main():
+     compile_enabled = os.getenv("C100_COMPILE", "1") != "0"
+     compile_mode = os.getenv("C100_COMPILE_MODE", "default")
+     compile_mode_label = compile_mode if compile_enabled else "off"
+-    model = SimpleResNet(widths=widths, blocks=blocks).cuda().to(torch.float16).to(memory_format=torch.channels_last)
++    model = SimpleResNet(widths=widths, blocks=blocks, block_type=block_type).cuda().to(torch.float16).to(memory_format=torch.channels_last)
+     # Compile is infrastructure, not a record surface. It is paid in warmup and
+     # must not be tuned as a benchmark trick; use it only to make the fixed
+     # training implementation run normally on the target stack.
+@@ -495,8 +568,13 @@ def main():
+         "compile_mode": compile_mode_label,
+         "widths": list(widths),
+         "blocks": list(blocks),
++        "block_type": block_type,
+         "muon_lr": float(os.getenv("C100_MUON_LR", "0.035")),
+         "bias_lr": float(os.getenv("C100_BIAS_LR", "0.02")),
++        "ns_steps": ns_steps,
++        "muon_momentum": muon_momentum,
++        "muon_weight_decay": muon_weight_decay,
++        "sgd_momentum": sgd_momentum,
+         "label_smoothing": label_smoothing,
+         "cutout_size": cutout_size,
+         "lr_schedule": lr_schedule,
+@@ -511,7 +589,7 @@ def main():
+     if output_dir is not None:
+         write_json(output_dir / "config.json", config)
+         write_repro_metadata(output_dir)
+-    print(f"config model=simple_resnet_muon runs={runs} epochs={epochs} batch={batch_size} target={target} validation_source={validation_source} compile={int(compile_enabled)} compile_mode={compile_mode_label} label_smoothing={label_smoothing} cutout_size={cutout_size} lr_schedule={lr_schedule} onecycle_pct_up={onecycle_pct_up} onecycle_div_factor={onecycle_div_factor} no_tta=1")
++    print(f"config model=simple_resnet_muon runs={runs} epochs={epochs} batch={batch_size} target={target} validation_source={validation_source} compile={int(compile_enabled)} compile_mode={compile_mode_label} block_type={block_type} label_smoothing={label_smoothing} cutout_size={cutout_size} lr_schedule={lr_schedule} onecycle_pct_up={onecycle_pct_up} onecycle_div_factor={onecycle_div_factor} ns_steps={ns_steps} muon_momentum={muon_momentum} muon_weight_decay={muon_weight_decay} sgd_momentum={sgd_momentum} no_tta=1")
+     print("---------------------------------------------------------------------------------")
+     print("|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |")
+     print("---------------------------------------------------------------------------------")
+@@ -531,6 +609,10 @@ def main():
+         lr_schedule,
+         onecycle_pct_up,
+         onecycle_div_factor,
++        ns_steps,
++        muon_momentum,
++        muon_weight_decay,
++        sgd_momentum,
+         evaluate_validation=False,
+     )
+     if output_dir is not None:
+@@ -556,6 +638,10 @@ def main():
+             lr_schedule,
+             onecycle_pct_up,
+             onecycle_div_factor,
++            ns_steps,
++            muon_momentum,
++            muon_weight_decay,
++            sgd_momentum,
+         )
+         if output_dir is not None:
+             append_metrics(output_dir / "metrics.csv", row)
+diff --git a/orchestration/g7-official-onecycle/trace.md b/orchestration/g7-official-onecycle/trace.md
+index b4870b0..cf957ef 100644
+--- a/orchestration/g7-official-onecycle/trace.md
++++ b/orchestration/g7-official-onecycle/trace.md
+@@ -40,7 +40,7 @@ Claim a candidate only if all checks pass:
+ 
+ The default `slurm/paired_compare.sh` debug settings are insufficient for official `RUNS=30`: dev10 took `00:16:43`, so 30 pairs are estimated at about `50` minutes. Submit with command-line overrides:
+ 
+-- `--qos=boost_qos_bprod`
++- `--qos=boost_qos_lprod`
+ - `--time=01:30:00`
+ 
+ ## Command
+@@ -55,9 +55,60 @@ EPOCHS=16 \
+ VALIDATION_SOURCE=official \
+ BASE_SEED=880000 \
+ CANDIDATE_ENV='C100_EPOCHS=14 C100_LR_SCHEDULE=onecycle C100_ONECYCLE_PCT_UP=0.30 C100_ONECYCLE_DIV_FACTOR=10.0' \
+-sbatch --qos=boost_qos_bprod --time=01:30:00 slurm/paired_compare.sh
++sbatch --qos=boost_qos_lprod --time=01:30:00 slurm/paired_compare.sh
+ ```
+ 
+ ## Stop Conditions
+ 
+ Do not launch unless local patch, remote patch, remote `bash -n`, output absence, and queue checks pass. Do not cancel or interrupt other compliant workstreams.
++
++## Submission Attempts
++
++- Attempt with `--qos=boost_qos_bprod --time=01:30:00` failed before allocation with `QOSMinCpuNotSatisfied`; no output directory was created.
++- `boost_qos_lprod` was selected for retry because it has a `04:00:00` max walltime and no single-job MinCPU requirement in `sacctmgr`.
++- Submitted with `--qos=boost_qos_lprod --time=01:30:00`: job `48439897`, initial state `PENDING (Priority)`.
++
++## Completion
++
++- Job `48439897` completed `0:0` on `lrdn2463` in `00:48:54`.
++- Output root: `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun/outputs/cifar100_speedrun/g7official_onecycle_default_20260703T203139Z`
++- Local curated artifacts:
++  - `orchestration/g7-official-onecycle/paired_summary.json`
++  - `orchestration/g7-official-onecycle/paired_order.csv`
++  - `orchestration/g7-official-onecycle/paired-48439897.out`
++  - `orchestration/g7-official-onecycle/paired-48439897.err`
++  - `orchestration/g7-official-onecycle/sacct-48439897.txt`
++- Raw local mirror, not intended as the curated commit surface: `orchestration/g7-official-onecycle/remote-artifacts/`
++
++## Final Checks Before Critic
++
++- `record_mode=true`
++- `validation_source=official`
++- `paired_seeds=30`
++- Split files printed at launch:
++  - `cifar100/train.pt: exists images=(50000, 32, 32, 3) labels=(50000,)`
++  - `cifar100/test.pt: exists images=(10000, 32, 32, 3) labels=(10000,)`
++- 60 per-seed config files were checked locally:
++  - all baseline configs: `epochs=16.0`, `lr_schedule=cosine`, `validation_source=official`, `no_tta=true`
++  - all candidate configs: `epochs=14.0`, `lr_schedule=onecycle`, `onecycle_pct_up=0.3`, `onecycle_div_factor=10.0`, `validation_source=official`, `no_tta=true`
++- SLURM stderr is empty.
++
++## Final Metrics
++
++| Metric | Value |
++| --- | ---: |
++| candidate mean official val acc | `0.713300` |
++| baseline mean official val acc | `0.708300` |
++| mean official val acc delta | `+0.005000` |
++| candidate min official val acc | `0.708600` |
++| baseline min official val acc | `0.701800` |
++| candidate target hits | `30/30` |
++| baseline target hits | `30/30` |
++| candidate mean timed seconds | `22.911267` |
++| baseline mean timed seconds | `26.326719` |
++| mean time delta | `-3.415452s` |
++| mean time ratio | `0.870868` |
++| max pair time ratio | `0.880533` |
++| negative accuracy-delta pairs | `3/30` |
++
++Independent critic status: PASS. The result is valid official finalist evidence and ready for Flywheel logging.
+diff --git a/program.md b/program.md
+index cd9bd8a..e2f0f60 100644
+--- a/program.md
++++ b/program.md
+@@ -1,70 +1,99 @@
+-# CIFAR-100 Speedrun Program
++# CIFAR-100 Architecture Frontier Program
+ 
+ ## Active Request
+ 
+-Win the CIFAR-100 A100 speedrun rooted at Flywheel node `R01 CIFAR-100 A100 Speedrun Challenge` (`83c2d2f5-2ac3-5ee5-85f1-2d5bb87ef299`) using `IscrC_SIMP` on CINECA Leonardo. The objective is to beat the current baseline under the repository contract: official CIFAR-100 train images only, frozen plain validation on the official test split, target `mean(val_acc) > 70%`, 30 official runs, single A100, timed training only, and same-pod paired comparison for record claims.
++Run the Architecture Frontier workstream in the isolated worktree
++`/Users/lucacerovaz/Documents/Cifar100 Speedrun-worktrees/arch-frontier` on branch
++`codex/cifar100-arch-frontier`, rooted at Flywheel node
++`83c2d2f5-2ac3-5ee5-85f1-2d5bb87ef299`.
++
++The current best official candidate is `13ep-onecycle-longwarm`, Flywheel node
++`c184a66e-6cdd-4b6b-9c23-197b0b58dd47`, with:
++
++```bash
++C100_EPOCHS=13 C100_LR_SCHEDULE=onecycle C100_ONECYCLE_PCT_UP=0.40 C100_ONECYCLE_DIV_FACTOR=10.0
++```
+ 
+ ## Current Phase
+ 
+-Validation-policy reset and next workstream design. G1 controls, G2 interactive smoke, G3 official baseline, G4 paired no-op pilot, first G5 train-dev search, and G5b train-dev search are complete. The repo contract permits and requires official validation for pre-registered record evidence: `RECORD=1`, `VALIDATION_SOURCE=official`, `RUNS=30`, and `C100_PREP_SPLITS=train,test`. Exploratory search remains `train_dev`, but compliant official workstream runs must not be interrupted merely because other workstreams are active.
++Architecture-frontier planning only. Do not code or launch GPU jobs until the ranked
++plan is audited by a scientific critic. Exploratory pilots must be train-dev only:
++`RECORD=0`, `C100_VALIDATION_SOURCE=train_dev`, `RUNS=3`, unique `RUN_ID` and output
++directory, no TTA, no ensembles, no validation adaptation, and no official-test search loops.
++
++## Claim, Hypothesis, Criterion
++
++Claim: a substantial architecture change can improve the current 13-epoch one-cycle
++longwarm frontier by preserving `mean(val_acc) > 70%` while reducing paired train time.
++
++Hypothesis: the current SimpleResNet body is not the best architecture for the fixed
++A100 timed-training contract; one of a small set of architecture trajectories can improve
++the train-dev time/accuracy frontier without using validation-time tricks or repeating
++previously killed compression variants.
++
++Falsification and decision criterion before official promotion:
++
++- Train-dev pilots: run `RUNS=3` paired or candidate-only as predeclared; promote only
++  candidates that beat or plausibly match the longwarm train-dev accuracy while reducing
++  timed train seconds enough to justify dev10.
++- Kill immediately if the candidate repeats killed variants naively, uses official
++  validation, reuses output directories, changes validation/timing boundaries, or misses
++  the predeclared train-dev gate.
++- Official evidence is out of scope until a finalist is pre-registered after result audit.
++
++Metric/evidence: per-run `summary.json`, `metrics.csv`, `config.json`,
++`repro_metadata.json`, SLURM stdout/stderr, `sacct`, and a local trace under
++`orchestration/arch-frontier/`.
+ 
+ ## Subagent Delegation Plan
+ 
+-- Main orchestrator: maintain global gates, reconcile subagent evidence, keep exploratory and official evidence labeled correctly, and launch only audited follow-up trajectories.
+-- `research-orchestrator` T1 Schedule compression: complete; kill recommendation after dev3 epoch/LR pilots.
+-- `research-orchestrator` T2 Muon mechanics: complete; kill recommendation after dev3 LR pilots.
+-- `research-orchestrator` T3 Architecture Pareto: complete; kill narrow/basewidth, keep `shallow122` only as a possible combined follow-up candidate.
+-- `scientific-critic` G5 Batch Reviewer: required before any next G5 expansion or finalist promotion.
+-- `research-orchestrator` G5b-T4 Shallow recovery: complete; KILL after paired train-dev dev3.
+-- `scientific-implementer` G5b-T5 Cheap regularization knobs/run: complete; KILL after cutout8 paired train-dev dev3.
+-- `experiment-architect` G5b-T6 Batch/schedule design/run: complete; KILL after paired train-dev dev3 batch-1536 pilot.
+-- `repo-cartographer` Validation Rule Audit: active; verify authoritative repo split/record semantics and stale program language.
+-- `experiment-architect` G7 Trajectory Planner: active; design credible accuracy-preserving speedup workstreams after failed simple-compression pilots.
+-- `research-orchestrator` CINECA State Audit: active; verify remote scratch checkout, official split availability, sync status, and safe launch handoffs without allocating GPU.
+-- `scientific-critic` G7 Plan Critic: conditional pass for G7-T4 train-dev dev3 after exact traces, remote sync, output-dir checks, and remote `bash -n`.
+-- Housekeeper: Codex cron automation `cifar100-speedrun-housekeeper-20m` is active every 20 minutes. It must not launch jobs or mutate Flywheel/Linear.
++- Main orchestrator: maintain gates, write `program.md`, reconcile subagent evidence,
++  and launch nothing until plan audit passes.
++- `paper-explorer`: bounded architecture source sweep for CIFAR/CIFAR-100 speedrun
++  architectures, small ResNets, ConvMixer/ConvNeXt-like small models, RepVGG or
++  reparameterized conv nets, AirBench-related bodies, and fast-training architecture
++  ideas.
++- `repo-cartographer`: read-only map of trainer, wrappers, current knobs, remote sync
++  constraints, output isolation, and exact implementation surfaces.
++- `experiment-architect`: rank low-risk SimpleResNet changes, medium-risk architecture
++  swaps, and high-risk reparameterized/AirBench-style trajectories with train-dev gates.
++- `scientific-critic`: audit the ranked plan before any implementation or launch.
++- `scientific-implementer`: only after critic approval; write scope must be disjoint and
++  explicitly assigned.
++- Housekeeper: existing `cifar100-speedrun-housekeeper-20m` cron is treated as active;
++  if unavailable, use a housekeeper sidecar and record it in
++  `orchestration/arch-frontier/`.
+ 
+ ## Checklist
+ 
+-- [x] Subagent delegation plan written before launch: see `orchestration/g5-search/assignments.md`.
+-- [x] Claim, hypothesis, decision criterion, and metric/evidence recorded before launch: each G5 track has its own trace under `orchestration/g5-t*/`.
+-- [x] Planning artifacts complete for first gate: see `program/01-literature-plan.md`, `program/04-execution-dag.md`, and `program/05-plan-audit.md`.
+-- [x] Critical audit completed for G1-G4 and per-track G5 pilots: see `orchestration/g5-t1-schedule/summary.md`, `orchestration/g5-t2-muon/summary.md`, and `orchestration/g5-t3-arch/summary.md`.
+-- [x] Objective completed for first G5 batch: T1/T2 killed; T3 only leaves `shallow122` as a possible combined follow-up, not a finalist.
+-- [x] Independent G5 batch audit completed: see `orchestration/g5-batch-audit/summary.md`; verdict blocks dev10, paired train-dev, official validation, and record mode from current evidence.
+-- [x] Flywheel logging delegated or ruled out for the first G5 batch: ruled out for now because all first-batch pilots are negative screening evidence and no record/finalist claim exists.
+-- [x] G5b objective completed: T4 shallow recovery, T5 cutout8, and T6 batch-1536 all killed on train-dev evidence. No candidate is promotable.
+-- [x] Post-G5b control hardening completed: paired wrapper now sanitizes baseline env, validates declared candidate diffs, and the remote G6 script path is quarantined.
+-- [x] Validation policy corrected after user review: official validation is required for pre-registered record evidence and must use official `train,test` split prep; exploratory search remains `train_dev`.
+-- [x] G7 trajectories selected for immediate launch: see `orchestration/g7-search/assignments.md` and `orchestration/g7-t4-capacity/*-trace.md`.
+-- [x] G7 critical audit completed for T4 train-dev dev3 only: conditional pass; no official/finalist launch is approved yet.
+-- [x] G7-T4 capacity objective completed: three train-dev paired candidates all killed; see `orchestration/g7-t4-capacity/result.md`.
+-- [x] G7-T2 schedule dev3/dev10 completed: one-cycle default promoted to official/finalist audit pending result critic; high-LR killed. See `orchestration/g7-t2-schedule/result.md`.
+-- [ ] G7 official/finalist objective completed: pre-registration, critic pass, official 30-run paired evidence, and logging still pending.
+-- [ ] Flywheel logging delegated: logger must use `$flywheel-log` for any record, finalist, or synthesis node; negative local screens may be logged only after curation.
++- [x] Subagent delegation plan written before launch.
++- [x] Claim and hypothesis recorded before launch.
++- [ ] Planning artifacts complete: `orchestration/arch-frontier/architecture-plan.md`
++  and subagent traces.
++- [ ] Critical audit completed: `orchestration/arch-frontier/plan-audit.md`.
++- [ ] Objective completed: train-dev pilot evidence paths and verifier named, or
++  explicit no-launch reason.
++- [ ] Flywheel logging delegated: ruled out for planning/train-dev exploratory work;
++  only delegate `$flywheel-log` after official/finalist evidence.
+ 
+-## Immediate Backlog
++## Prior Kills To Avoid Repeating
+ 
+-1. Run result critic on G7-T2 dev10 and pre-register official `onecycle-default` only if audit passes.
+-2. Decide whether `slurm/paired_compare.sh` is acceptable for official 30-run walltime or needs an efficient record runner.
+-3. Launch official 30-run workstream only with `RECORD=1`, `RUNS=30`, `VALIDATION_SOURCE=official`, and split prep `train,test`.
+-4. Implement Muon mechanics knobs only after the official schedule path is resolved or parallel capacity is available.
+-5. Delegate Flywheel logging after official/finalist evidence or explicitly log negative train-dev screens as local-only if no official candidate survives.
++Do not repeat these variants naively: `narrow222`, `basewidth222`, `shallow122`,
++`shallow122@16`, `late-light`, `mid-heavy late-light`, `mid-light full-late`.
+ 
+-## Active Assumptions And Ambiguities
++## Immediate Backlog
+ 
+-- Challenge contract and Flywheel root require `IscrC_SIMP`; local `ssh leonardo` also resolves `$WORK=/leonardo_work/IscrC_SIMP`, `$FAST=/leonardo_scratch/fast/IscrC_SIMP`, and `$SCRATCH=/leonardo_scratch/large/userexternal/lcerovaz`.
+-- The prompt also mentioned YENDRI/PDR. Treat that as an ambiguity for storage/account only: do not launch PDR/YENDRI record jobs unless explicitly reconciled with the SIMP challenge contract.
+-- Operational repository path while `$WORK` is full is `/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun`; old PAERLE/YENDRI/absolute WORK launch paths must remain removed from active scripts.
+-- Incident `48410752`/`48410889`: an external old-path official-candidate script under `$WORK` attempted 30-run official candidate comparisons from a PAERLE/YENDRI checkout. Job `48410889` was canceled after 1m52s allocation and is not scientific evidence. See `orchestration/control-incidents/2026-07-03-official-candidate-cancel.md`.
+-- Incident `48412222`: an unreviewed G6 official-validation job was found pending from a remote untracked `orchestration/g6-official-retrain/` script and canceled before allocation. See `orchestration/control-incidents/2026-07-03-g6-official-cancel.md`.
+-- Incident `48412394`: the same unreviewed G6 official-validation script was retried, ran for `00:04:22`, touched official validation for seed `880000`, and was canceled. The cancellation reason was unreviewed launch surface/path governance, not a blanket ban on official validation. See `orchestration/control-incidents/2026-07-03-g6-official-retry-cancel.md`.
+-- Remote quarantine: `orchestration/g6-official-retrain/run_g6_official_preregistered.sh` was reversibly renamed to `run_g6_official_preregistered.sh.BLOCKED_BY_MAIN_20260703` on the scratch checkout so it cannot be resubmitted by the same unreviewed path.
++1. Collect bounded subagent evidence and write a ranked architecture research plan.
++2. Run independent critic audit of the plan.
++3. If audit passes, assign one scoped implementation patch and local/static checks.
++4. Launch only train-dev pilots with unique run IDs and babysit SLURM jobs to completion.
++5. Run separate result critic before promote/hold/kill.
+ 
+ ## No-Run Gates
+ 
+-- No unlabeled GPU spend: every run must name claim, hypothesis, criterion, validation mode, run id, and output path before launch.
+-- No official-test search loops; use train-derived dev validation for exploratory selection, and use official validation only for pre-registered record/finalist workstreams.
+-- No validation path edits, no validation-time adaptation, no TTA, no ensembles, no timing-boundary changes for record claims.
+-- No output directory reuse; every run gets a unique run id.
+-- No Flywheel mutation until curated evidence, critic audit, reproducibility notes, and commit metadata exist.
++- No Flywheel mutation in this workstream until official/finalist evidence exists and
++  logging is delegated separately.
++- No official validation for architecture search.
++- No mutation of the main worktree.
++- No coding before ranked plan and critic approval.
++- No output reuse or unlabeled GPU spend.
+diff --git a/slurm/paired_compare.sh b/slurm/paired_compare.sh
+index 131f90b..c2eb38e 100755
+--- a/slurm/paired_compare.sh
++++ b/slurm/paired_compare.sh
+@@ -75,28 +75,38 @@ clear_training_env() {
+   unset BATCH MUON_LR BIAS_LR
+   unset C100_EPOCHS
+   unset C100_BATCH C100_MUON_LR C100_BIAS_LR
+-  unset C100_WIDTHS C100_BLOCKS
++  unset C100_NS_STEPS C100_MUON_MOMENTUM C100_MUON_WEIGHT_DECAY C100_SGD_MOMENTUM
++  unset C100_WIDTHS C100_BLOCKS C100_BLOCK_TYPE
+   unset C100_LABEL_SMOOTHING C100_CUTOUT_SIZE
+   unset C100_LR_SCHEDULE C100_ONECYCLE_PCT_UP C100_ONECYCLE_DIV_FACTOR
+   unset C100_COMPILE C100_COMPILE_MODE C100_SLEEP_CYCLES
+ }
+ 
+-validate_candidate_env() {
++validate_tracked_env() {
++  local env_name="$1"
++  local env_value="$2"
+   local token key
+-  for token in ${CANDIDATE_ENV:-}; do
++  for token in ${env_value}; do
+     key=${token%%=*}
+     case "$key" in
+-      C100_EPOCHS|C100_BATCH|C100_WIDTHS|C100_BLOCKS|C100_MUON_LR|C100_BIAS_LR|C100_LABEL_SMOOTHING|C100_CUTOUT_SIZE|C100_LR_SCHEDULE|C100_ONECYCLE_PCT_UP|C100_ONECYCLE_DIV_FACTOR)
++      C100_EPOCHS|C100_BATCH|C100_WIDTHS|C100_BLOCKS|C100_BLOCK_TYPE|C100_MUON_LR|C100_BIAS_LR|C100_NS_STEPS|C100_MUON_MOMENTUM|C100_MUON_WEIGHT_DECAY|C100_SGD_MOMENTUM|C100_LABEL_SMOOTHING|C100_CUTOUT_SIZE|C100_LR_SCHEDULE|C100_ONECYCLE_PCT_UP|C100_ONECYCLE_DIV_FACTOR)
+         ;;
+       *)
+-        echo "Refusing untracked CANDIDATE_ENV key: $key" >&2
++        echo "Refusing untracked ${env_name} key: $key" >&2
+         exit 8
+         ;;
+     esac
+   done
+ }
+ 
+-validate_candidate_env
++validate_tracked_env COMMON_ENV "${COMMON_ENV:-}"
++validate_tracked_env CANDIDATE_ENV "${CANDIDATE_ENV:-}"
++
++apply_common_env() {
++  if [[ -n "${COMMON_ENV:-}" ]]; then
++    export ${COMMON_ENV}
++  fi
++}
+ 
+ run_method() {
+   local label="$1"
+@@ -117,19 +127,37 @@ run_method() {
+   C100_BATCH=${C100_BATCH:-${BATCH:-1024}} \
+   C100_MUON_LR=${C100_MUON_LR:-${MUON_LR:-0.035}} \
+   C100_BIAS_LR=${C100_BIAS_LR:-${BIAS_LR:-0.02}} \
++  C100_NS_STEPS=${C100_NS_STEPS:-5} \
++  C100_MUON_MOMENTUM=${C100_MUON_MOMENTUM:-0.95} \
++  C100_MUON_WEIGHT_DECAY=${C100_MUON_WEIGHT_DECAY:-0.0002} \
++  C100_SGD_MOMENTUM=${C100_SGD_MOMENTUM:-0.9} \
+   C100_SLEEP_CYCLES=${C100_SLEEP_CYCLES:-1000000000} \
+   C100_OUTPUT_DIR="$out_dir" \
+   python train_cifar100_resnet_muon.py
+ }
+ 
+-# Candidate overrides are passed through CANDIDATE_ENV, for example:
+-# CANDIDATE_ENV='C100_MUON_LR=0.032 C100_BIAS_LR=0.018'
++# Shared overrides are passed through COMMON_ENV, for example:
++# COMMON_ENV='C100_EPOCHS=13 C100_LR_SCHEDULE=onecycle C100_ONECYCLE_PCT_UP=0.40 C100_ONECYCLE_DIV_FACTOR=10.0'
++# Candidate-only overrides are passed through CANDIDATE_ENV, for example:
++# CANDIDATE_ENV='C100_MUON_LR=0.032 C100_BIAS_LR=0.018 C100_NS_STEPS=6'
++run_baseline() {
++  local order="$1"
++  local seed="$2"
++  local pair_index="$3"
++  (
++    clear_training_env
++    apply_common_env
++    run_method baseline "$order" "$seed" "$pair_index"
++  )
++}
++
+ run_candidate() {
+   local order="$1"
+   local seed="$2"
+   local pair_index="$3"
+   (
+     clear_training_env
++    apply_common_env
+     if [[ -n "${CANDIDATE_ENV:-}" ]]; then
+       export ${CANDIDATE_ENV}
+     fi
+@@ -142,23 +170,24 @@ for ((i = 0; i < RUNS; i++)); do
+   pair_index=$((i + 1))
+   if (( i % 2 == 0 )); then
+     printf "%d,%d,baseline,candidate\n" "$pair_index" "$seed" >> "$ORDER_FILE"
+-    (clear_training_env; run_method baseline A "$seed" "$pair_index")
++    run_baseline A "$seed" "$pair_index"
+     run_candidate B "$seed" "$pair_index"
+   else
+     printf "%d,%d,candidate,baseline\n" "$pair_index" "$seed" >> "$ORDER_FILE"
+     run_candidate A "$seed" "$pair_index"
+-    (clear_training_env; run_method baseline B "$seed" "$pair_index")
++    run_baseline B "$seed" "$pair_index"
+   fi
+ done
+ 
+-python - <<'PY' "$OUT_ROOT" "${CANDIDATE_ENV:-}" "$VALIDATION_SOURCE" "$RECORD"
++python - <<'PY' "$OUT_ROOT" "${COMMON_ENV:-}" "${CANDIDATE_ENV:-}" "$VALIDATION_SOURCE" "$RECORD"
+ import csv, json, shlex, statistics, sys
+ from pathlib import Path
+ 
+ root = Path(sys.argv[1])
+-candidate_env = sys.argv[2].strip()
+-validation_source = sys.argv[3]
+-record = sys.argv[4] == "1"
++common_env = sys.argv[2].strip()
++candidate_env = sys.argv[3].strip()
++validation_source = sys.argv[4]
++record = sys.argv[5] == "1"
+ 
+ def rows(path):
+     with path.open() as f:
+@@ -190,8 +219,13 @@ env_to_field = {
+     "C100_BATCH": "batch_size",
+     "C100_WIDTHS": "widths",
+     "C100_BLOCKS": "blocks",
++    "C100_BLOCK_TYPE": "block_type",
+     "C100_MUON_LR": "muon_lr",
+     "C100_BIAS_LR": "bias_lr",
++    "C100_NS_STEPS": "ns_steps",
++    "C100_MUON_MOMENTUM": "muon_momentum",
++    "C100_MUON_WEIGHT_DECAY": "muon_weight_decay",
++    "C100_SGD_MOMENTUM": "sgd_momentum",
+     "C100_LABEL_SMOOTHING": "label_smoothing",
+     "C100_CUTOUT_SIZE": "cutout_size",
+     "C100_LR_SCHEDULE": "lr_schedule",
+@@ -209,8 +243,13 @@ compare_fields = [
+     "compile_mode",
+     "widths",
+     "blocks",
++    "block_type",
+     "muon_lr",
+     "bias_lr",
++    "ns_steps",
++    "muon_momentum",
++    "muon_weight_decay",
++    "sgd_momentum",
+     "label_smoothing",
+     "cutout_size",
+     "lr_schedule",
+@@ -265,6 +304,7 @@ summary = {
+     "paired_seeds": len(pairs),
+     "validation_source": validation_source,
+     "record_mode": record,
++    "common_env": common_env,
+     "candidate_env": candidate_env,
+     "order_file": "paired_order.csv",
+     "counterbalance": "per-seed alternating AB/BA; pilot-grade, with one trainer invocation per method per seed",

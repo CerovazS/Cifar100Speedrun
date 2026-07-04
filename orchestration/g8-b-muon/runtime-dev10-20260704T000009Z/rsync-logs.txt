@@ -1,0 +1,6 @@
+Transfer starting: 2 files
+paired-48460378.err
+paired-48460378.out
+
+sent 60 bytes  received 26681 bytes  267410000 bytes/sec
+total size is 26464  speedup is 0.99

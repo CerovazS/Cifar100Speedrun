@@ -1,0 +1,100 @@
+## remote state after fdb65d9 archive sync
+login07.leonardo.local
+20260704T000228Z
+branch=codex/cifar100-speedrun-control
+head=2c3edb798dc27d512109a7c49eb8ede82b84c023
+ M cifar100-benchmark/train_cifar100_resnet_muon.py
+ M orchestration/g7-official-onecycle/trace.md
+ M program.md
+ M slurm/paired_compare.sh
+?? index.md
+?? orchestration/g6-official-retrain/
+?? orchestration/g7-official-onecycle/commit.txt
+?? orchestration/g7-official-onecycle/critic.md
+?? orchestration/g7-official-onecycle/paired-48439897.err
+?? orchestration/g7-official-onecycle/paired-48439897.out
+?? orchestration/g7-official-onecycle/paired_order.csv
+?? orchestration/g7-official-onecycle/paired_summary.json
+?? orchestration/g7-official-onecycle/plots/
+?? orchestration/g7-official-onecycle/remote_artifacts_manifest.tsv
+?? orchestration/g7-official-onecycle/reproducibility.md
+?? orchestration/g7-official-onecycle/result.md
+?? orchestration/g7-official-onecycle/sacct-48439897.txt
+?? orchestration/g7-official-onecycle/summary.md
+?? orchestration/g8-a-schedule/
+?? orchestration/g8-b-muon/
+?? orchestration/g8-c-data-path/
+?? orchestration/g8-official-longwarm/
+?? orchestration/g8-search/
+?? paired_compare.sh
+?? train_cifar100_resnet_muon.py
+ cifar100-benchmark/train_cifar100_resnet_muon.py | 59 +++++++++++++++++++++---
+ orchestration/g7-official-onecycle/trace.md      | 55 +++++++++++++++++++++-
+ program.md                                       | 27 +++++++----
+ slurm/paired_compare.sh                          | 53 ++++++++++++++++-----
+ 4 files changed, 167 insertions(+), 27 deletions(-)
+## relevant fdb65d9 local blob hashes
+slurm/paired_compare.sh  3deb85b54cfd97bfe69f20c78791c4cf74cb8e3d4a268ee919118b582f4b46b4
+cifar100-benchmark/train_cifar100_resnet_muon.py  be5101a6bb1bfb56f465f3eee6ed80f6b23274e4a7e2229238ebf24217c9cb34
+cifar100-benchmark/prepare_cifar100_hf.py  36da6cff95482853de0aed51d59c10987345bd77b3da54e953c4b0e112a734df
+env_setup.sh  7413ce0eedb96bc3aa8975236a8dd1237e1a273513dba6ccba2fe41d80fd02bd
+pyproject.toml  617f63f066428ed48fcb09b8983cb1daaf1c4bf7ca61d8aed8a4901cf364b027
+uv.lock  f7db1acafc161bf145fcfe87b729a5b20b4318cc4b0cda371a8d3899870d5193
+## relevant remote file hashes
+3deb85b54cfd97bfe69f20c78791c4cf74cb8e3d4a268ee919118b582f4b46b4  slurm/paired_compare.sh
+be5101a6bb1bfb56f465f3eee6ed80f6b23274e4a7e2229238ebf24217c9cb34  cifar100-benchmark/train_cifar100_resnet_muon.py
+36da6cff95482853de0aed51d59c10987345bd77b3da54e953c4b0e112a734df  cifar100-benchmark/prepare_cifar100_hf.py
+7413ce0eedb96bc3aa8975236a8dd1237e1a273513dba6ccba2fe41d80fd02bd  env_setup.sh
+617f63f066428ed48fcb09b8983cb1daaf1c4bf7ca61d8aed8a4901cf364b027  pyproject.toml
+f7db1acafc161bf145fcfe87b729a5b20b4318cc4b0cda371a8d3899870d5193  uv.lock
+## grep launch controls
+bash: rg: command not found
+## output dir absence
+absent:outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z
+## active jobs
+squeue: error: Invalid user: lucacerovaz
+
+JOBID|STATE|NAME|JOBID|TIME|TIME_LIMIT|NODELIST(REASON)
+## syntax and compile preflight
+python=/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/envs/venv311/bin/python3
+Python 3.11.15
+bash: slurm/paired_compare.sh: No such file or directory
+## corrected grep launch controls
+slurm/paired_compare.sh:43:  VALIDATION_SOURCE=${VALIDATION_SOURCE:-official}
+slurm/paired_compare.sh:46:  VALIDATION_SOURCE=${VALIDATION_SOURCE:-train_dev}
+slurm/paired_compare.sh:51:if [[ "$RECORD" == "1" && "$VALIDATION_SOURCE" != "official" ]]; then
+slurm/paired_compare.sh:52:  echo "Refusing RECORD=1 without VALIDATION_SOURCE=official." >&2
+slurm/paired_compare.sh:58:  echo "Use RECORD=0 VALIDATION_SOURCE=train_dev for underpowered pilots." >&2
+slurm/paired_compare.sh:61:if [[ "$VALIDATION_SOURCE" == "official" && "$RECORD" != "1" ]]; then
+slurm/paired_compare.sh:62:  echo "Refusing official validation in paired_compare.sh without RECORD=1." >&2
+slurm/paired_compare.sh:63:  echo "Default paired pilots use VALIDATION_SOURCE=train_dev; official is only for pre-registered record evidence." >&2
+slurm/paired_compare.sh:78:  unset C100_NS_STEPS C100_MUON_MOMENTUM C100_MUON_WEIGHT_DECAY C100_SGD_MOMENTUM
+slurm/paired_compare.sh:85:validate_env_tokens() {
+slurm/paired_compare.sh:92:      C100_EPOCHS|C100_BATCH|C100_WIDTHS|C100_BLOCKS|C100_MUON_LR|C100_BIAS_LR|C100_NS_STEPS|C100_MUON_MOMENTUM|C100_MUON_WEIGHT_DECAY|C100_SGD_MOMENTUM|C100_LABEL_SMOOTHING|C100_CUTOUT_SIZE|C100_LR_SCHEDULE|C100_ONECYCLE_PCT_UP|C100_ONECYCLE_DIV_FACTOR)
+slurm/paired_compare.sh:102:validate_env_tokens BASELINE_ENV "${BASELINE_ENV:-}"
+slurm/paired_compare.sh:103:validate_env_tokens CANDIDATE_ENV "${CANDIDATE_ENV:-}"
+slurm/paired_compare.sh:113:  echo "===== seed=${seed} pair_index=${pair_index} order=${order} label=${label} epochs=${EPOCHS} target=${TARGET} validation_source=${VALIDATION_SOURCE} ====="
+slurm/paired_compare.sh:118:  C100_VALIDATION_SOURCE=$VALIDATION_SOURCE \
+slurm/paired_compare.sh:124:  C100_NS_STEPS=${C100_NS_STEPS:-5} \
+slurm/paired_compare.sh:125:  C100_MUON_MOMENTUM=${C100_MUON_MOMENTUM:-0.95} \
+slurm/paired_compare.sh:134:# CANDIDATE_ENV='C100_MUON_LR=0.032 C100_BIAS_LR=0.018 C100_NS_STEPS=6'
+slurm/paired_compare.sh:154:    if [[ -n "${BASELINE_ENV:-}" ]]; then
+slurm/paired_compare.sh:155:      export ${BASELINE_ENV}
+slurm/paired_compare.sh:175:python - <<'PY' "$OUT_ROOT" "${CANDIDATE_ENV:-}" "${BASELINE_ENV:-}" "$VALIDATION_SOURCE" "$RECORD"
+slurm/paired_compare.sh:217:    "C100_NS_STEPS": "ns_steps",
+slurm/paired_compare.sh:218:    "C100_MUON_MOMENTUM": "muon_momentum",
+cifar100-benchmark/train_cifar100_resnet_muon.py:479:    validation_source = os.getenv("C100_VALIDATION_SOURCE", "official")
+cifar100-benchmark/train_cifar100_resnet_muon.py:480:    dev_per_class = int(os.getenv("C100_DEV_PER_CLASS", "50"))
+cifar100-benchmark/train_cifar100_resnet_muon.py:481:    dev_split_seed = int(os.getenv("C100_DEV_SPLIT_SEED", "20260703"))
+cifar100-benchmark/train_cifar100_resnet_muon.py:491:    ns_steps = parse_bounded_int_env("C100_NS_STEPS", 5, 1, 8)
+cifar100-benchmark/train_cifar100_resnet_muon.py:492:    muon_momentum = parse_bounded_float_env("C100_MUON_MOMENTUM", 0.95, 0.0, 1.0, include_max=False)
+cifar100-benchmark/train_cifar100_resnet_muon.py:503:        raise ValueError(f"unknown C100_VALIDATION_SOURCE={validation_source!r}")
+## corrected active jobs
+JOBID|STATE|NAME|JOBID|TIME|TIME_LIMIT|NODELIST(REASON)
+## corrected syntax and compile preflight
+cwd=/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/Cifar100Speedrun/cifar100-benchmark
+python=/leonardo_scratch/large/userexternal/lcerovaz/cifar100_speedrun/envs/venv311/bin/python3
+Python 3.11.15
+corrected-preflight-ok
+## output dir absence recheck
+absent:outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z

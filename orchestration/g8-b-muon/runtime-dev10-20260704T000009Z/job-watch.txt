@@ -1,0 +1,626 @@
+## initial job status
+JOBID|STATE|NAME|TIME|TIME_LIMIT|NODELIST(REASON)
+48460378|RUNNING|c100-paired|0:08|30:00|lrdn2086
+## initial log listing
+-rw-r--r--. 1 lcerovaz interactive   0 Jul  4 02:03 logs/paired-48460378.err
+-rw-r--r--. 1 lcerovaz interactive 270 Jul  4 02:03 logs/paired-48460378.out
+## poll 20260704T000452Z
+JOBID|STATE|NAME|TIME|TIME_LIMIT|NODELIST(REASON)
+48460378|RUNNING|c100-paired|1:21|30:00|lrdn2086
+-- out tail --
+[env_setup] cifar100 ready (python=Python 3.11.15)
+==> Sat Jul  4 02:03:38 CEST 2026 job=48460378 node=lrdn2086.leonardo.local
+index, uuid, name, memory.total [MiB], driver_version
+0, GPU-36fcb9c6-9c30-a9d2-a8b3-691a81059dab, NVIDIA A100-SXM-64GB, 65536 MiB, 535.274.02
+cifar100/train.pt: exists images=(50000, 32, 32, 3) labels=(50000,)
+mean [0.507075, 0.486549, 0.440918]
+std [0.267334, 0.256438, 0.27615]
+-- err tail --
+-- artifact dirs --
+## poll 20260704T000704Z
+JOBID|STATE|NAME|TIME|TIME_LIMIT|NODELIST(REASON)
+48460378|RUNNING|c100-paired|3:34|30:00|lrdn2086
+-- out tail --
+[env_setup] cifar100 ready (python=Python 3.11.15)
+==> Sat Jul  4 02:03:38 CEST 2026 job=48460378 node=lrdn2086.leonardo.local
+index, uuid, name, memory.total [MiB], driver_version
+0, GPU-36fcb9c6-9c30-a9d2-a8b3-691a81059dab, NVIDIA A100-SXM-64GB, 65536 MiB, 535.274.02
+cifar100/train.pt: exists images=(50000, 32, 32, 3) labels=(50000,)
+mean [0.507075, 0.486549, 0.440918]
+std [0.267334, 0.256438, 0.27615]
+===== seed=893600 pair_index=1 order=A label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2039  |    skipped  |      skipped  |      54.8856  |
+|       1  |   eval  |     0.8949  |     0.7008  |       1.0000  |      19.2429  |
+Mean val accuracy after 1 runs: 0.700800 | Mean time: 19.242930s
+Val accuracies: Mean: 0.700800    Std: 0.000000    Min: 0.700800    Max: 0.700800
+Times (s):      Mean: 19.242929    Std: 0.000000    Min: 19.242929    Max: 19.242929
+Target 0.7000 hit count: 1/1
+===== seed=893600 pair_index=1 order=B label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+-- err tail --
+-- artifact dirs --
+outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z
+outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/seed0001_A_baseline
+outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/seed0001_B_candidate
+## poll 20260704T001019Z
+JOBID|STATE|NAME|TIME|TIME_LIMIT|NODELIST(REASON)
+48460378|RUNNING|c100-paired|6:49|30:00|lrdn2086
+-- out tail --
+[env_setup] cifar100 ready (python=Python 3.11.15)
+==> Sat Jul  4 02:03:38 CEST 2026 job=48460378 node=lrdn2086.leonardo.local
+index, uuid, name, memory.total [MiB], driver_version
+0, GPU-36fcb9c6-9c30-a9d2-a8b3-691a81059dab, NVIDIA A100-SXM-64GB, 65536 MiB, 535.274.02
+cifar100/train.pt: exists images=(50000, 32, 32, 3) labels=(50000,)
+mean [0.507075, 0.486549, 0.440918]
+std [0.267334, 0.256438, 0.27615]
+===== seed=893600 pair_index=1 order=A label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2039  |    skipped  |      skipped  |      54.8856  |
+|       1  |   eval  |     0.8949  |     0.7008  |       1.0000  |      19.2429  |
+Mean val accuracy after 1 runs: 0.700800 | Mean time: 19.242930s
+Val accuracies: Mean: 0.700800    Std: 0.000000    Min: 0.700800    Max: 0.700800
+Times (s):      Mean: 19.242929    Std: 0.000000    Min: 19.242929    Max: 19.242929
+Target 0.7000 hit count: 1/1
+===== seed=893600 pair_index=1 order=B label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2122  |    skipped  |      skipped  |      11.6217  |
+|       1  |   eval  |     0.9008  |     0.7058  |       1.0000  |      17.8717  |
+Mean val accuracy after 1 runs: 0.705800 | Mean time: 17.871742s
+Val accuracies: Mean: 0.705800    Std: 0.000000    Min: 0.705800    Max: 0.705800
+Times (s):      Mean: 17.871742    Std: 0.000000    Min: 17.871742    Max: 17.871742
+Target 0.7000 hit count: 1/1
+===== seed=893601 pair_index=2 order=A label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2338  |    skipped  |      skipped  |      11.7564  |
+|       1  |   eval  |     0.9020  |     0.7112  |       1.0000  |      17.8918  |
+Mean val accuracy after 1 runs: 0.711200 | Mean time: 17.891801s
+Val accuracies: Mean: 0.711200    Std: 0.000000    Min: 0.711200    Max: 0.711200
+Times (s):      Mean: 17.891800    Std: 0.000000    Min: 17.891800    Max: 17.891800
+Target 0.7000 hit count: 1/1
+===== seed=893601 pair_index=2 order=B label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2231  |    skipped  |      skipped  |      11.6426  |
+|       1  |   eval  |     0.8970  |     0.7092  |       1.0000  |      19.0177  |
+Mean val accuracy after 1 runs: 0.709200 | Mean time: 19.017713s
+Val accuracies: Mean: 0.709200    Std: 0.000000    Min: 0.709200    Max: 0.709200
+Times (s):      Mean: 19.017714    Std: 0.000000    Min: 19.017714    Max: 19.017714
+Target 0.7000 hit count: 1/1
+===== seed=893602 pair_index=3 order=A label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2033  |    skipped  |      skipped  |      11.1592  |
+|       1  |   eval  |     0.8938  |     0.6944  |       0.0000  |      18.9661  |
+Mean val accuracy after 1 runs: 0.694400 | Mean time: 18.966148s
+Val accuracies: Mean: 0.694400    Std: 0.000000    Min: 0.694400    Max: 0.694400
+Times (s):      Mean: 18.966148    Std: 0.000000    Min: 18.966148    Max: 18.966148
+Target 0.7000 hit count: 0/1
+===== seed=893602 pair_index=3 order=B label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2276  |    skipped  |      skipped  |      11.0378  |
+|       1  |   eval  |     0.8961  |     0.7034  |       1.0000  |      17.6280  |
+Mean val accuracy after 1 runs: 0.703400 | Mean time: 17.628014s
+Val accuracies: Mean: 0.703400    Std: 0.000000    Min: 0.703400    Max: 0.703400
+Times (s):      Mean: 17.628014    Std: 0.000000    Min: 17.628014    Max: 17.628014
+Target 0.7000 hit count: 1/1
+===== seed=893603 pair_index=4 order=A label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+-- err tail --
+-- artifact count --
+6
+-- latest dirs --
+outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z
+outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/seed0001_A_baseline
+outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/seed0001_B_candidate
+outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/seed0002_A_candidate
+outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/seed0002_B_baseline
+outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/seed0003_A_baseline
+outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/seed0003_B_candidate
+outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/seed0004_A_candidate
+## poll 20260704T001433Z
+JOBID|STATE|NAME|TIME|TIME_LIMIT|NODELIST(REASON)
+48460378|RUNNING|c100-paired|11:01|30:00|lrdn2086
+-- out tail --
+[env_setup] cifar100 ready (python=Python 3.11.15)
+==> Sat Jul  4 02:03:38 CEST 2026 job=48460378 node=lrdn2086.leonardo.local
+index, uuid, name, memory.total [MiB], driver_version
+0, GPU-36fcb9c6-9c30-a9d2-a8b3-691a81059dab, NVIDIA A100-SXM-64GB, 65536 MiB, 535.274.02
+cifar100/train.pt: exists images=(50000, 32, 32, 3) labels=(50000,)
+mean [0.507075, 0.486549, 0.440918]
+std [0.267334, 0.256438, 0.27615]
+===== seed=893600 pair_index=1 order=A label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2039  |    skipped  |      skipped  |      54.8856  |
+|       1  |   eval  |     0.8949  |     0.7008  |       1.0000  |      19.2429  |
+Mean val accuracy after 1 runs: 0.700800 | Mean time: 19.242930s
+Val accuracies: Mean: 0.700800    Std: 0.000000    Min: 0.700800    Max: 0.700800
+Times (s):      Mean: 19.242929    Std: 0.000000    Min: 19.242929    Max: 19.242929
+Target 0.7000 hit count: 1/1
+===== seed=893600 pair_index=1 order=B label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2122  |    skipped  |      skipped  |      11.6217  |
+|       1  |   eval  |     0.9008  |     0.7058  |       1.0000  |      17.8717  |
+Mean val accuracy after 1 runs: 0.705800 | Mean time: 17.871742s
+Val accuracies: Mean: 0.705800    Std: 0.000000    Min: 0.705800    Max: 0.705800
+Times (s):      Mean: 17.871742    Std: 0.000000    Min: 17.871742    Max: 17.871742
+Target 0.7000 hit count: 1/1
+===== seed=893601 pair_index=2 order=A label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2338  |    skipped  |      skipped  |      11.7564  |
+|       1  |   eval  |     0.9020  |     0.7112  |       1.0000  |      17.8918  |
+Mean val accuracy after 1 runs: 0.711200 | Mean time: 17.891801s
+Val accuracies: Mean: 0.711200    Std: 0.000000    Min: 0.711200    Max: 0.711200
+Times (s):      Mean: 17.891800    Std: 0.000000    Min: 17.891800    Max: 17.891800
+Target 0.7000 hit count: 1/1
+===== seed=893601 pair_index=2 order=B label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2231  |    skipped  |      skipped  |      11.6426  |
+|       1  |   eval  |     0.8970  |     0.7092  |       1.0000  |      19.0177  |
+Mean val accuracy after 1 runs: 0.709200 | Mean time: 19.017713s
+Val accuracies: Mean: 0.709200    Std: 0.000000    Min: 0.709200    Max: 0.709200
+Times (s):      Mean: 19.017714    Std: 0.000000    Min: 19.017714    Max: 19.017714
+Target 0.7000 hit count: 1/1
+===== seed=893602 pair_index=3 order=A label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2033  |    skipped  |      skipped  |      11.1592  |
+|       1  |   eval  |     0.8938  |     0.6944  |       0.0000  |      18.9661  |
+Mean val accuracy after 1 runs: 0.694400 | Mean time: 18.966148s
+Val accuracies: Mean: 0.694400    Std: 0.000000    Min: 0.694400    Max: 0.694400
+Times (s):      Mean: 18.966148    Std: 0.000000    Min: 18.966148    Max: 18.966148
+Target 0.7000 hit count: 0/1
+===== seed=893602 pair_index=3 order=B label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2276  |    skipped  |      skipped  |      11.0378  |
+|       1  |   eval  |     0.8961  |     0.7034  |       1.0000  |      17.6280  |
+Mean val accuracy after 1 runs: 0.703400 | Mean time: 17.628014s
+Val accuracies: Mean: 0.703400    Std: 0.000000    Min: 0.703400    Max: 0.703400
+Times (s):      Mean: 17.628014    Std: 0.000000    Min: 17.628014    Max: 17.628014
+Target 0.7000 hit count: 1/1
+===== seed=893603 pair_index=4 order=A label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2305  |    skipped  |      skipped  |      11.1017  |
+|       1  |   eval  |     0.9001  |     0.7120  |       1.0000  |      17.6620  |
+Mean val accuracy after 1 runs: 0.712000 | Mean time: 17.661984s
+Val accuracies: Mean: 0.712000    Std: 0.000000    Min: 0.712000    Max: 0.712000
+Times (s):      Mean: 17.661983    Std: 0.000000    Min: 17.661983    Max: 17.661983
+Target 0.7000 hit count: 1/1
+===== seed=893603 pair_index=4 order=B label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.1996  |    skipped  |      skipped  |      11.1254  |
+|       1  |   eval  |     0.8993  |     0.7044  |       1.0000  |      18.9391  |
+Mean val accuracy after 1 runs: 0.704400 | Mean time: 18.939139s
+Val accuracies: Mean: 0.704400    Std: 0.000000    Min: 0.704400    Max: 0.704400
+Times (s):      Mean: 18.939138    Std: 0.000000    Min: 18.939138    Max: 18.939138
+Target 0.7000 hit count: 1/1
+===== seed=893604 pair_index=5 order=A label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2113  |    skipped  |      skipped  |      11.1593  |
+|       1  |   eval  |     0.8995  |     0.6984  |       0.0000  |      19.0621  |
+Mean val accuracy after 1 runs: 0.698400 | Mean time: 19.062119s
+Val accuracies: Mean: 0.698400    Std: 0.000000    Min: 0.698400    Max: 0.698400
+Times (s):      Mean: 19.062119    Std: 0.000000    Min: 19.062119    Max: 19.062119
+Target 0.7000 hit count: 0/1
+===== seed=893604 pair_index=5 order=B label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2331  |    skipped  |      skipped  |      11.1792  |
+|       1  |   eval  |     0.9038  |     0.7128  |       1.0000  |      17.7675  |
+Mean val accuracy after 1 runs: 0.712800 | Mean time: 17.767492s
+Val accuracies: Mean: 0.712800    Std: 0.000000    Min: 0.712800    Max: 0.712800
+Times (s):      Mean: 17.767492    Std: 0.000000    Min: 17.767492    Max: 17.767492
+Target 0.7000 hit count: 1/1
+===== seed=893605 pair_index=6 order=A label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2130  |    skipped  |      skipped  |      10.9896  |
+|       1  |   eval  |     0.8987  |     0.7100  |       1.0000  |      17.5516  |
+Mean val accuracy after 1 runs: 0.710000 | Mean time: 17.551564s
+Val accuracies: Mean: 0.710000    Std: 0.000000    Min: 0.710000    Max: 0.710000
+Times (s):      Mean: 17.551565    Std: 0.000000    Min: 17.551565    Max: 17.551565
+Target 0.7000 hit count: 1/1
+===== seed=893605 pair_index=6 order=B label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2041  |    skipped  |      skipped  |      11.1429  |
+|       1  |   eval  |     0.8996  |     0.6998  |       0.0000  |      18.8882  |
+Mean val accuracy after 1 runs: 0.699800 | Mean time: 18.888203s
+Val accuracies: Mean: 0.699800    Std: 0.000000    Min: 0.699800    Max: 0.699800
+Times (s):      Mean: 18.888203    Std: 0.000000    Min: 18.888203    Max: 18.888203
+Target 0.7000 hit count: 0/1
+===== seed=893606 pair_index=7 order=A label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2037  |    skipped  |      skipped  |      11.0843  |
+-- err tail --
+-- artifact count --
+12
+-- summary exists --
+## poll 20260704T001844Z
+JOBID|STATE|NAME|TIME|TIME_LIMIT|NODELIST(REASON)
+48460378|RUNNING|c100-paired|15:13|30:00|lrdn2086
+-- out tail --
+Val accuracies: Mean: 0.711200    Std: 0.000000    Min: 0.711200    Max: 0.711200
+Times (s):      Mean: 17.891800    Std: 0.000000    Min: 17.891800    Max: 17.891800
+Target 0.7000 hit count: 1/1
+===== seed=893601 pair_index=2 order=B label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2231  |    skipped  |      skipped  |      11.6426  |
+|       1  |   eval  |     0.8970  |     0.7092  |       1.0000  |      19.0177  |
+Mean val accuracy after 1 runs: 0.709200 | Mean time: 19.017713s
+Val accuracies: Mean: 0.709200    Std: 0.000000    Min: 0.709200    Max: 0.709200
+Times (s):      Mean: 19.017714    Std: 0.000000    Min: 19.017714    Max: 19.017714
+Target 0.7000 hit count: 1/1
+===== seed=893602 pair_index=3 order=A label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2033  |    skipped  |      skipped  |      11.1592  |
+|       1  |   eval  |     0.8938  |     0.6944  |       0.0000  |      18.9661  |
+Mean val accuracy after 1 runs: 0.694400 | Mean time: 18.966148s
+Val accuracies: Mean: 0.694400    Std: 0.000000    Min: 0.694400    Max: 0.694400
+Times (s):      Mean: 18.966148    Std: 0.000000    Min: 18.966148    Max: 18.966148
+Target 0.7000 hit count: 0/1
+===== seed=893602 pair_index=3 order=B label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2276  |    skipped  |      skipped  |      11.0378  |
+|       1  |   eval  |     0.8961  |     0.7034  |       1.0000  |      17.6280  |
+Mean val accuracy after 1 runs: 0.703400 | Mean time: 17.628014s
+Val accuracies: Mean: 0.703400    Std: 0.000000    Min: 0.703400    Max: 0.703400
+Times (s):      Mean: 17.628014    Std: 0.000000    Min: 17.628014    Max: 17.628014
+Target 0.7000 hit count: 1/1
+===== seed=893603 pair_index=4 order=A label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2305  |    skipped  |      skipped  |      11.1017  |
+|       1  |   eval  |     0.9001  |     0.7120  |       1.0000  |      17.6620  |
+Mean val accuracy after 1 runs: 0.712000 | Mean time: 17.661984s
+Val accuracies: Mean: 0.712000    Std: 0.000000    Min: 0.712000    Max: 0.712000
+Times (s):      Mean: 17.661983    Std: 0.000000    Min: 17.661983    Max: 17.661983
+Target 0.7000 hit count: 1/1
+===== seed=893603 pair_index=4 order=B label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.1996  |    skipped  |      skipped  |      11.1254  |
+|       1  |   eval  |     0.8993  |     0.7044  |       1.0000  |      18.9391  |
+Mean val accuracy after 1 runs: 0.704400 | Mean time: 18.939139s
+Val accuracies: Mean: 0.704400    Std: 0.000000    Min: 0.704400    Max: 0.704400
+Times (s):      Mean: 18.939138    Std: 0.000000    Min: 18.939138    Max: 18.939138
+Target 0.7000 hit count: 1/1
+===== seed=893604 pair_index=5 order=A label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2113  |    skipped  |      skipped  |      11.1593  |
+|       1  |   eval  |     0.8995  |     0.6984  |       0.0000  |      19.0621  |
+Mean val accuracy after 1 runs: 0.698400 | Mean time: 19.062119s
+Val accuracies: Mean: 0.698400    Std: 0.000000    Min: 0.698400    Max: 0.698400
+Times (s):      Mean: 19.062119    Std: 0.000000    Min: 19.062119    Max: 19.062119
+Target 0.7000 hit count: 0/1
+===== seed=893604 pair_index=5 order=B label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2331  |    skipped  |      skipped  |      11.1792  |
+|       1  |   eval  |     0.9038  |     0.7128  |       1.0000  |      17.7675  |
+Mean val accuracy after 1 runs: 0.712800 | Mean time: 17.767492s
+Val accuracies: Mean: 0.712800    Std: 0.000000    Min: 0.712800    Max: 0.712800
+Times (s):      Mean: 17.767492    Std: 0.000000    Min: 17.767492    Max: 17.767492
+Target 0.7000 hit count: 1/1
+===== seed=893605 pair_index=6 order=A label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2130  |    skipped  |      skipped  |      10.9896  |
+|       1  |   eval  |     0.8987  |     0.7100  |       1.0000  |      17.5516  |
+Mean val accuracy after 1 runs: 0.710000 | Mean time: 17.551564s
+Val accuracies: Mean: 0.710000    Std: 0.000000    Min: 0.710000    Max: 0.710000
+Times (s):      Mean: 17.551565    Std: 0.000000    Min: 17.551565    Max: 17.551565
+Target 0.7000 hit count: 1/1
+===== seed=893605 pair_index=6 order=B label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2041  |    skipped  |      skipped  |      11.1429  |
+|       1  |   eval  |     0.8996  |     0.6998  |       0.0000  |      18.8882  |
+Mean val accuracy after 1 runs: 0.699800 | Mean time: 18.888203s
+Val accuracies: Mean: 0.699800    Std: 0.000000    Min: 0.699800    Max: 0.699800
+Times (s):      Mean: 18.888203    Std: 0.000000    Min: 18.888203    Max: 18.888203
+Target 0.7000 hit count: 0/1
+===== seed=893606 pair_index=7 order=A label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2037  |    skipped  |      skipped  |      11.0843  |
+|       1  |   eval  |     0.8932  |     0.7134  |       1.0000  |      18.9097  |
+Mean val accuracy after 1 runs: 0.713400 | Mean time: 18.909707s
+Val accuracies: Mean: 0.713400    Std: 0.000000    Min: 0.713400    Max: 0.713400
+Times (s):      Mean: 18.909706    Std: 0.000000    Min: 18.909706    Max: 18.909706
+Target 0.7000 hit count: 1/1
+===== seed=893606 pair_index=7 order=B label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2192  |    skipped  |      skipped  |      11.0745  |
+|       1  |   eval  |     0.8966  |     0.7092  |       1.0000  |      17.5803  |
+Mean val accuracy after 1 runs: 0.709200 | Mean time: 17.580346s
+Val accuracies: Mean: 0.709200    Std: 0.000000    Min: 0.709200    Max: 0.709200
+Times (s):      Mean: 17.580345    Std: 0.000000    Min: 17.580345    Max: 17.580345
+Target 0.7000 hit count: 1/1
+===== seed=893607 pair_index=8 order=A label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2258  |    skipped  |      skipped  |      11.0611  |
+|       1  |   eval  |     0.8958  |     0.7088  |       1.0000  |      17.5389  |
+Mean val accuracy after 1 runs: 0.708800 | Mean time: 17.538941s
+Val accuracies: Mean: 0.708800    Std: 0.000000    Min: 0.708800    Max: 0.708800
+Times (s):      Mean: 17.538942    Std: 0.000000    Min: 17.538942    Max: 17.538942
+Target 0.7000 hit count: 1/1
+===== seed=893607 pair_index=8 order=B label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2145  |    skipped  |      skipped  |      10.9910  |
+|       1  |   eval  |     0.8944  |     0.7096  |       1.0000  |      18.8644  |
+Mean val accuracy after 1 runs: 0.709600 | Mean time: 18.864367s
+Val accuracies: Mean: 0.709600    Std: 0.000000    Min: 0.709600    Max: 0.709600
+Times (s):      Mean: 18.864367    Std: 0.000000    Min: 18.864367    Max: 18.864367
+Target 0.7000 hit count: 1/1
+===== seed=893608 pair_index=9 order=A label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.1999  |    skipped  |      skipped  |      11.1724  |
+|       1  |   eval  |     0.8985  |     0.7094  |       1.0000  |      18.8747  |
+Mean val accuracy after 1 runs: 0.709400 | Mean time: 18.874689s
+Val accuracies: Mean: 0.709400    Std: 0.000000    Min: 0.709400    Max: 0.709400
+Times (s):      Mean: 18.874689    Std: 0.000000    Min: 18.874689    Max: 18.874689
+Target 0.7000 hit count: 1/1
+===== seed=893608 pair_index=9 order=B label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2074  |    skipped  |      skipped  |      11.1220  |
+|       1  |   eval  |     0.8999  |     0.7064  |       1.0000  |      17.7814  |
+Mean val accuracy after 1 runs: 0.706400 | Mean time: 17.781377s
+Val accuracies: Mean: 0.706400    Std: 0.000000    Min: 0.706400    Max: 0.706400
+Times (s):      Mean: 17.781378    Std: 0.000000    Min: 17.781378    Max: 17.781378
+Target 0.7000 hit count: 1/1
+===== seed=893609 pair_index=10 order=A label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2338  |    skipped  |      skipped  |      11.1387  |
+|       1  |   eval  |     0.9034  |     0.7174  |       1.0000  |      17.7131  |
+Mean val accuracy after 1 runs: 0.717400 | Mean time: 17.713100s
+Val accuracies: Mean: 0.717400    Std: 0.000000    Min: 0.717400    Max: 0.717400
+Times (s):      Mean: 17.713100    Std: 0.000000    Min: 17.713100    Max: 17.713100
+Target 0.7000 hit count: 1/1
+===== seed=893609 pair_index=10 order=B label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+-- err tail --
+-- artifact count --
+19
+-- summary exists --
+## poll 20260704T002026Z
+slurm_load_jobs error: Invalid job id specified
+-- out tail --
+Val accuracies: Mean: 0.706400    Std: 0.000000    Min: 0.706400    Max: 0.706400
+Times (s):      Mean: 17.781378    Std: 0.000000    Min: 17.781378    Max: 17.781378
+Target 0.7000 hit count: 1/1
+===== seed=893609 pair_index=10 order=A label=candidate epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=3 muon_momentum=0.93 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2338  |    skipped  |      skipped  |      11.1387  |
+|       1  |   eval  |     0.9034  |     0.7174  |       1.0000  |      17.7131  |
+Mean val accuracy after 1 runs: 0.717400 | Mean time: 17.713100s
+Val accuracies: Mean: 0.717400    Std: 0.000000    Min: 0.717400    Max: 0.717400
+Times (s):      Mean: 17.713100    Std: 0.000000    Min: 17.713100    Max: 17.713100
+Target 0.7000 hit count: 1/1
+===== seed=893609 pair_index=10 order=B label=baseline epochs=13 target=0.70 validation_source=train_dev =====
+config model=simple_resnet_muon runs=1 epochs=13.0 batch=1024 target=0.7 validation_source=train_dev compile=1 compile_mode=default block_type=basic label_smoothing=0.05 cutout_size=0 lr_schedule=onecycle onecycle_pct_up=0.4 onecycle_div_factor=10.0 ns_steps=5 muon_momentum=0.95 muon_weight_decay=0.0002 sgd_momentum=0.9 no_tta=1
+---------------------------------------------------------------------------------
+|  run     |  epoch  |  train_acc  |  val_acc  |  target_hit   |  time_seconds  |
+---------------------------------------------------------------------------------
+|  warmup  |   eval  |     0.2244  |    skipped  |      skipped  |      11.3033  |
+|       1  |   eval  |     0.8941  |     0.7038  |       1.0000  |      19.1461  |
+Mean val accuracy after 1 runs: 0.703800 | Mean time: 19.146129s
+Val accuracies: Mean: 0.703800    Std: 0.000000    Min: 0.703800    Max: 0.703800
+Times (s):      Mean: 19.146130    Std: 0.000000    Min: 19.146130    Max: 19.146130
+Target 0.7000 hit count: 1/1
+{
+  "baseline_env": "C100_EPOCHS=13 C100_LR_SCHEDULE=onecycle C100_ONECYCLE_PCT_UP=0.40 C100_ONECYCLE_DIV_FACTOR=10.0",
+  "candidate_env": "C100_EPOCHS=13 C100_LR_SCHEDULE=onecycle C100_ONECYCLE_PCT_UP=0.40 C100_ONECYCLE_DIV_FACTOR=10.0 C100_NS_STEPS=3 C100_MUON_MOMENTUM=0.93",
+  "counterbalance": "per-seed alternating AB/BA; pilot-grade, with one trainer invocation per method per seed",
+  "mean_time_delta": -1.2924783203124999,
+  "mean_time_ratio": 0.9319536432175068,
+  "mean_val_acc_delta": 0.005379999999999996,
+  "order_file": "paired_order.csv",
+  "paired_seeds": 10,
+  "pairs": [
+    {
+      "baseline_time": 19.242929687500002,
+      "baseline_val_acc": 0.7008,
+      "candidate_time": 17.8717421875,
+      "candidate_val_acc": 0.7058,
+      "order": "baseline/candidate",
+      "seed": 893600,
+      "time_ratio": 0.9287433087233744,
+      "val_acc_delta": 0.0050000000000000044
+    },
+    {
+      "baseline_time": 19.017712890625,
+      "baseline_val_acc": 0.7092,
+      "candidate_time": 17.89180078125,
+      "candidate_val_acc": 0.7112,
+      "order": "candidate/baseline",
+      "seed": 893601,
+      "time_ratio": 0.9407966606788964,
+      "val_acc_delta": 0.0020000000000000018
+    },
+    {
+      "baseline_time": 18.9661484375,
+      "baseline_val_acc": 0.6944,
+      "candidate_time": 17.628013671875,
+      "candidate_val_acc": 0.7034,
+      "order": "baseline/candidate",
+      "seed": 893602,
+      "time_ratio": 0.9294461513873196,
+      "val_acc_delta": 0.009000000000000008
+    },
+    {
+      "baseline_time": 18.939138671875,
+      "baseline_val_acc": 0.7044,
+      "candidate_time": 17.661984375,
+      "candidate_val_acc": 0.712,
+      "order": "candidate/baseline",
+      "seed": 893603,
+      "time_ratio": 0.9325653442322802,
+      "val_acc_delta": 0.00759999999999994
+    },
+    {
+      "baseline_time": 19.062119140625,
+      "baseline_val_acc": 0.6984,
+      "candidate_time": 17.7674921875,
+      "candidate_val_acc": 0.7128,
+      "order": "baseline/candidate",
+      "seed": 893604,
+      "time_ratio": 0.9320837865100788,
+      "val_acc_delta": 0.014399999999999968
+    },
+    {
+      "baseline_time": 18.888203125,
+      "baseline_val_acc": 0.6998,
+      "candidate_time": 17.551564453125,
+      "candidate_val_acc": 0.71,
+      "order": "candidate/baseline",
+      "seed": 893605,
+      "time_ratio": 0.9292342070323325,
+      "val_acc_delta": 0.010199999999999987
+    },
+    {
+      "baseline_time": 18.90970703125,
+      "baseline_val_acc": 0.7134,
+      "candidate_time": 17.580345703125,
+      "candidate_val_acc": 0.7092,
+      "order": "baseline/candidate",
+      "seed": 893606,
+      "time_ratio": 0.9296995280821585,
+      "val_acc_delta": -0.0041999999999999815
+    },
+    {
+      "baseline_time": 18.8643671875,
+      "baseline_val_acc": 0.7096,
+      "candidate_time": 17.53894140625,
+      "candidate_val_acc": 0.7088,
+      "order": "candidate/baseline",
+      "seed": 893607,
+      "time_ratio": 0.9297391866858772,
+      "val_acc_delta": -0.0008000000000000229
+    },
+    {
+      "baseline_time": 18.874689453125,
+      "baseline_val_acc": 0.7094,
+      "candidate_time": 17.781376953125,
+      "candidate_val_acc": 0.7064,
+      "order": "baseline/candidate",
+      "seed": 893608,
+      "time_ratio": 0.9420752059145013,
+      "val_acc_delta": -0.0030000000000000027
+    },
+    {
+      "baseline_time": 19.14612890625,
+      "baseline_val_acc": 0.7038,
+      "candidate_time": 17.713099609375,
+      "candidate_val_acc": 0.7174,
+      "order": "candidate/baseline",
+      "seed": 893609,
+      "time_ratio": 0.9251530529282499,
+      "val_acc_delta": 0.013600000000000056
+    }
+  ],
+  "record_mode": false,
+  "validation_source": "train_dev"
+}
+==> done Sat Jul  4 02:19:11 CEST 2026
+-- err tail --
+-- artifact count --
+20
+-- summary exists --
+-rw-r--r--. 1 lcerovaz interactive 3705 Jul  4 02:19 outputs/cifar100_speedrun/g8b_ns3_mom93_longwarm_dev10_20260704T000009Z/paired_summary.json
